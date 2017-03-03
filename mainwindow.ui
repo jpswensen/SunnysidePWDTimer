@@ -18,7 +18,7 @@
     <item row="0" column="1">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="raceSetupLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -45,7 +45,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_5">
+       <widget class="QPushButton" name="competitorsButton">
         <property name="font">
          <font>
           <family>Cambria</family>
@@ -60,7 +60,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_4">
+       <widget class="QPushButton" name="resultsButton">
         <property name="font">
          <font>
           <family>Cambria</family>
@@ -107,7 +107,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QLabel" name="label_2">
+         <widget class="QLabel" name="raceControlLabel">
           <property name="font">
            <font>
             <family>Cambria</family>
@@ -240,7 +240,7 @@
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout_2">
          <item row="3" column="2">
-          <widget class="QLabel" name="label_20">
+          <widget class="QLabel" name="racerTime2">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -258,7 +258,7 @@
           </widget>
          </item>
          <item row="4" column="0">
-          <widget class="QLabel" name="label_13">
+          <widget class="QLabel" name="racerName3">
            <property name="font">
             <font>
              <pointsize>64</pointsize>
@@ -270,7 +270,7 @@
           </widget>
          </item>
          <item row="4" column="2">
-          <widget class="QLabel" name="label_21">
+          <widget class="QLabel" name="racerTime3">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -288,7 +288,7 @@
           </widget>
          </item>
          <item row="5" column="0">
-          <widget class="QLabel" name="label_14">
+          <widget class="QLabel" name="racerName4">
            <property name="font">
             <font>
              <pointsize>64</pointsize>
@@ -300,7 +300,7 @@
           </widget>
          </item>
          <item row="0" column="3">
-          <widget class="QLabel" name="label_6">
+          <widget class="QLabel" name="racerFinishLabel">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -318,7 +318,7 @@
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QLabel" name="label_5">
+          <widget class="QLabel" name="racerTimeLabel">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -336,7 +336,7 @@
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="racerNameLabel">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -351,7 +351,7 @@
           </widget>
          </item>
          <item row="4" column="3">
-          <widget class="QLabel" name="label_9">
+          <widget class="QLabel" name="racerFinish3">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -369,7 +369,7 @@
           </widget>
          </item>
          <item row="5" column="3">
-          <widget class="QLabel" name="label_10">
+          <widget class="QLabel" name="racerFinish4">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -387,7 +387,7 @@
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="label_11">
+          <widget class="QLabel" name="racerName1">
            <property name="font">
             <font>
              <pointsize>64</pointsize>
@@ -399,7 +399,7 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QLabel" name="label_15">
+          <widget class="QLabel" name="racerLane1">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -417,7 +417,7 @@
           </widget>
          </item>
          <item row="2" column="2">
-          <widget class="QLabel" name="label_19">
+          <widget class="QLabel" name="racerTime1">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -435,7 +435,7 @@
           </widget>
          </item>
          <item row="2" column="3">
-          <widget class="QLabel" name="label_7">
+          <widget class="QLabel" name="racerFinish1">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -453,7 +453,7 @@
           </widget>
          </item>
          <item row="5" column="1">
-          <widget class="QLabel" name="label_18">
+          <widget class="QLabel" name="racerLane4">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -471,7 +471,7 @@
           </widget>
          </item>
          <item row="3" column="3">
-          <widget class="QLabel" name="label_8">
+          <widget class="QLabel" name="racerFinish2">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -489,7 +489,7 @@
           </widget>
          </item>
          <item row="5" column="2">
-          <widget class="QLabel" name="label_22">
+          <widget class="QLabel" name="racerTime4">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -507,7 +507,7 @@
           </widget>
          </item>
          <item row="4" column="1">
-          <widget class="QLabel" name="label_17">
+          <widget class="QLabel" name="racerLane3">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -525,7 +525,7 @@
           </widget>
          </item>
          <item row="3" column="1">
-          <widget class="QLabel" name="label_16">
+          <widget class="QLabel" name="racerLane2">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -543,7 +543,7 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QLabel" name="label_4">
+          <widget class="QLabel" name="racerLaneLabel">
            <property name="font">
             <font>
              <family>Cambria</family>
@@ -561,7 +561,7 @@
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_12">
+          <widget class="QLabel" name="racerName2">
            <property name="font">
             <font>
              <pointsize>64</pointsize>

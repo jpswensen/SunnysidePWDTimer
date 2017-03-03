@@ -6,6 +6,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    // Set up a std::array for each type of field for easy access by indexing later.
+    racerNames = {{ui->racerName1, ui->racerName2, ui->racerName3, ui->racerName4}};
+    racerLanes = {{ui->racerLane1, ui->racerLane2, ui->racerLane3, ui->racerLane4}};
+    racerTimes = {{ui->racerTime1, ui->racerTime2, ui->racerTime3, ui->racerTime4}};
+    racerFinish = {{ui->racerFinish1, ui->racerFinish2, ui->racerFinish3, ui->racerFinish4}};
 }
 
 MainWindow::~MainWindow()
