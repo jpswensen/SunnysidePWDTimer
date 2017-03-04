@@ -3,6 +3,9 @@
 
 #include <QTextStream>
 #include <QStandardItem>
+#include <QDesktopWidget>
+
+#include "editcompetitorsdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -17,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent) :
     racerLanes  = {{ui->racerLane1, ui->racerLane2, ui->racerLane3, ui->racerLane4}};
     racerTimes  = {{ui->racerTime1, ui->racerTime2, ui->racerTime3, ui->racerTime4}};
     racerFinish = {{ui->racerFinish1, ui->racerFinish2, ui->racerFinish3, ui->racerFinish4}};
-
 
     // Fake some racer names so that we can fill in the race brackets
     m_participants.append( ParticipantInfo("Jacob Swensen","Reverse Flash"));
@@ -36,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
         m_participants[parts[i]].setRaceTime(lanes[i], 1.45);
     }
 
+
     // Initialize the table with the current participants
     updateHeatsTable();
 
@@ -51,6 +54,21 @@ MainWindow::~MainWindow()
         m_serialPort->close();
 
     delete ui;
+}
+
+void MainWindow::onColumnChanged(const QModelIndex &index)
+{
+    m_currentHeat = index.column();
+
+    int parts[4];
+    int lanes[4];
+    heatToParticipants(m_currentHeat,parts,lanes);
+
+    for (int i = 0 ; i < 4 ; i++)
+    {
+        m_standardOutput << i << " " << parts[i] << " " << m_participants[parts[i]].participantName() << endl;
+        racerNames[i]->setText(m_participants[parts[i]].participantName());
+    }
 }
 
 void MainWindow::setupSerial ()
@@ -151,8 +169,6 @@ void MainWindow::updateHeatsTable ()
         }
     }
 
-
-
     ui->heatsTableView->setModel(model);
 
     QFont font = ui->competitorsButton->font();
@@ -173,6 +189,10 @@ void MainWindow::updateHeatsTable ()
     palette->setColor(QPalette::Highlight,bg);
     palette->setColor(QPalette::HighlightedText,Qt::white);
     ui->heatsTableView->setPalette(*palette);
+
+    connect(ui->heatsTableView->selectionModel()
+            , SIGNAL(currentColumnChanged(QModelIndex,QModelIndex))
+            , SLOT(onColumnChanged(QModelIndex)));
 }
 
 void MainWindow::heatToParticipants (int heat, int (&part)[4], int (&lane)[4])
@@ -208,30 +228,11 @@ void MainWindow::participantLaneToRowColumn (int participant, Ui::Lane_t lane, i
 
 void MainWindow::handleReadyRead()
 {
-
-    /*
-    QByteArray data = m_serialPort->read(1);
-    while (data[0] != '$')
-    {
-        data = m_serialPort->read(1);
-    }
-    m_readData.append(data);
-
-    while (data[0] != '*')
-    {
-        data = m_serialPort->read(1);
-        m_readData.append(data);
-    }
-
-    QString message = QString::fromUtf8(m_readData.data());
-*/
     QString message = "";
     if (m_serialPort->bytesAvailable() > 64)
         message = m_serialPort->readLine();
     else
         return;
-
-    //m_standardOutput << message << endl;
 
     QRegExp rx("[$, *\r\n]");// match a comma or a space
     QStringList list = message.split(rx, QString::SkipEmptyParts);
@@ -240,7 +241,6 @@ void MainWindow::handleReadyRead()
         m_readData.clear();
         return;
     }
-    //qDebug() << list;
 
     Ui::TimerState_t state = (Ui::TimerState_t)list.at(0).toInt();
     long startTime = list.at(1).toLong();
@@ -301,6 +301,23 @@ void MainWindow::handleError(QSerialPort::SerialPortError serialPortError)
     }
 }
 
+void MainWindow::on_competitorsButton_clicked()
+{
+    EditCompetitorsDialog* ecd = new EditCompetitorsDialog(m_participants, this);
+    const QRect availableGeometry = QApplication::desktop()->availableGeometry(ecd);
+    ecd->resize(availableGeometry.width() / 3, availableGeometry.height() * 2 / 3);
+    ecd->move((availableGeometry.width() - ecd->width()) / 2,
+                        (availableGeometry.height() - ecd->height()) / 2);
+
+    ecd->show();
+
+}
+
+void MainWindow::on_resultsButton_clicked()
+{
+
+}
+
 void MainWindow::on_resetButton_clicked()
 {
     ui->resetButton->setEnabled(true);
@@ -335,13 +352,23 @@ void MainWindow::on_startButton_clicked()
 
 void MainWindow::on_acceptButton_clicked()
 {
-    ui->resetButton->setEnabled(true);
-    ui->acceptButton->setEnabled(false);
+    //ui->resetButton->setEnabled(true);
+    //ui->acceptButton->setEnabled(false);
 
-    // TODO: Move the results from this race up into the final results
+    // Move the results from this race up into the final results
+    int parts[4];
+    int lanes[4];
+    heatToParticipants(m_currentHeat,parts,lanes);
+
+    for (int i = 0 ; i < 4 ; i++)
+    {
+        m_participants[parts[i]].setRaceTime(lanes[i],racerTimes[i]->text().toInt());
+    }
+    updateHeatsTable();
 
 
 
+    /*
     // TESTING: Print a whole window
     // FIXME: This is printing too large, even when I tell the print dialog to "scale to fit page".
     // I think I probably need to use a QPainter to paint to the full size and then just scale that
@@ -353,6 +380,7 @@ void MainWindow::on_acceptButton_clicked()
     this->render(&printer);
 
     // FIXME: Scale the QPainter and then render the QPainter to the QPrinter
+    */
 }
 
 

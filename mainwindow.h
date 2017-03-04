@@ -58,16 +58,22 @@ private:
     QTextStream m_standardOutput;
 
     QList<ParticipantInfo> m_participants;
-
+    int m_currentHeat;
+    QList<ParticipantInfo> m_currentHeatParticipants;
 
 private slots:
     void on_resetButton_clicked();
     void on_startButton_clicked();
     void on_acceptButton_clicked();
 
+    void on_competitorsButton_clicked();
+    void on_resultsButton_clicked();
+
     void handleReadyRead();
     void handleTimeout();
     void handleError(QSerialPort::SerialPortError serialPortError);
+
+    void onColumnChanged(const QModelIndex &index);
 
 };
 
