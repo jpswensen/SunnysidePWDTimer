@@ -7,8 +7,16 @@
 #include <QLabel>
 #include <array>
 #include <QtSerialPort/QtSerialPort>
+#include "participantinfo.h"
 
 namespace Ui {
+
+typedef enum LaneEnum {
+    LANE1 = 0,
+    LANE2,
+    LANE3,
+    LANE4
+} Lane_t;
 
 typedef enum TimerStateEnum {
   UNDEFINED = 0,
@@ -28,6 +36,12 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void setupSerial ();
+    void updateHeatsTable ();
+
+    void heatToParticipants (int heat, int (&part)[4], int (&lane)[4]);
+    void participantLaneToRowColumn (int participant, Ui::Lane_t lane, int& row, int& col);
+
 private:
     Ui::MainWindow *ui;
 
@@ -42,6 +56,8 @@ private:
     int         m_place;
 
     QTextStream m_standardOutput;
+
+    QList<ParticipantInfo> m_participants;
 
 
 private slots:

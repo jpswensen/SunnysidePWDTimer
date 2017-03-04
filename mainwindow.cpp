@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <QTextStream>
+#include <QStandardItem>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -12,12 +13,48 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // Set up a std::array for each type of field for easy access by indexing later.
-    racerNames = {{ui->racerName1, ui->racerName2, ui->racerName3, ui->racerName4}};
-    racerLanes = {{ui->racerLane1, ui->racerLane2, ui->racerLane3, ui->racerLane4}};
-    racerTimes = {{ui->racerTime1, ui->racerTime2, ui->racerTime3, ui->racerTime4}};
+    racerNames  = {{ui->racerName1, ui->racerName2, ui->racerName3, ui->racerName4}};
+    racerLanes  = {{ui->racerLane1, ui->racerLane2, ui->racerLane3, ui->racerLane4}};
+    racerTimes  = {{ui->racerTime1, ui->racerTime2, ui->racerTime3, ui->racerTime4}};
     racerFinish = {{ui->racerFinish1, ui->racerFinish2, ui->racerFinish3, ui->racerFinish4}};
 
-    // Start the thread to be listening for the UDP messages
+
+    // Fake some racer names so that we can fill in the race brackets
+    m_participants.append( ParticipantInfo("Jacob Swensen","Reverse Flash"));
+    m_participants.append( ParticipantInfo("Aaron Swensen","The Alchemist"));
+    m_participants.append( ParticipantInfo("Adam Swensen","Kokipolo"));
+    m_participants.append( ParticipantInfo("Tommy Swensen","Knock Knock"));
+    m_participants.append( ParticipantInfo("John Swensen","King of the Hill"));
+    m_participants.append( ParticipantInfo("Brittney Swensen","Superfast"));
+
+    int parts[4];
+    int lanes[4];
+    heatToParticipants(3,parts,lanes);
+    for (int i = 0 ; i < 4 ; i++)
+    {
+        m_standardOutput << i << " " << parts[i] << " " << lanes[i] << endl;
+        m_participants[parts[i]].setRaceTime(lanes[i], 1.45);
+    }
+
+    // Initialize the table with the current participants
+    updateHeatsTable();
+
+    // Configure the serial port
+    setupSerial();
+
+
+}
+
+MainWindow::~MainWindow()
+{
+    if (m_serialPort)
+        m_serialPort->close();
+
+    delete ui;
+}
+
+void MainWindow::setupSerial ()
+{
     const auto serialPortInfos = QSerialPortInfo::availablePorts();
 
     m_standardOutput << QObject::tr("Total number of ports available: ") << serialPortInfos.count() << endl;
@@ -79,16 +116,94 @@ MainWindow::MainWindow(QWidget *parent) :
             break;
         }
     }
-
-    //m_serialPort = QSerialPort(&serialPortInfos[0]);
 }
 
-MainWindow::~MainWindow()
+void MainWindow::updateHeatsTable ()
 {
-    if (m_serialPort)
-        m_serialPort->close();
+    // Set up the model of the QTableView
+    QStandardItemModel *model = new QStandardItemModel(4,m_participants.length(),this); //2 Rows and 3 Columns
 
-    delete ui;
+    model->setVerticalHeaderItem(0, new QStandardItem(QString("Lane A")));
+    model->setVerticalHeaderItem(1, new QStandardItem(QString("Lane B")));
+    model->setVerticalHeaderItem(2, new QStandardItem(QString("Lane C")));
+    model->setVerticalHeaderItem(3, new QStandardItem(QString("Lane D")));
+
+
+    for (int i = 0 ; i < m_participants.length() ; i++)
+    {
+        ParticipantInfo part = m_participants.at(i);
+
+        for (int j = 0 ; j < 4 ; j++)
+        {
+            int column = (i+j)%m_participants.length();
+
+
+            model->setData(model->index(j, column), part.participantName());
+
+            if (part.raceTime(j) != 0.0)
+            {
+                int row, col;
+                participantLaneToRowColumn(i, (Ui::Lane_t)j, row, col);
+                m_standardOutput << "ASDF " <<  i << " " << j << " " << row << " " << col << endl;
+                model->setData(model->index(row, col), QVariant(QColor(Qt::red)), Qt::DecorationRole);
+
+            }
+        }
+    }
+
+
+
+    ui->heatsTableView->setModel(model);
+
+    QFont font = ui->competitorsButton->font();
+    font.setPointSize(48);
+    ui->heatsTableView->horizontalHeader()->setFont( font );
+    ui->heatsTableView->verticalHeader()->setFont( font );
+    ui->heatsTableView->setSelectionBehavior(QAbstractItemView::SelectColumns);
+    ui->heatsTableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->heatsTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    font.setPointSize(36);
+    font.setBold(false);
+    ui->heatsTableView->setFont(font);
+
+
+    QPalette* palette = new QPalette();
+    QColor bg(50,200,50);
+    palette->setColor(QPalette::Highlight,bg);
+    palette->setColor(QPalette::HighlightedText,Qt::white);
+    ui->heatsTableView->setPalette(*palette);
+}
+
+void MainWindow::heatToParticipants (int heat, int (&part)[4], int (&lane)[4])
+{
+    for (int i = 0 ; i < 4 ; i++)
+    {
+        part[i] = (heat + m_participants.length() - i) % m_participants.length();
+        lane[i] = i;
+    }
+}
+
+void MainWindow::participantLaneToRowColumn (int participant, Ui::Lane_t lane, int& row, int& col)
+{
+    // 0,1,2,3,4,5
+    // 5,0,1,2,3,4
+    // 4,5,0,1,2,3
+    // 3,4,5,0,1,2
+
+    // P/L => idx
+    // p=0, l=0 => 0
+    // p=0, l=1 => 6  => p+(l)*(N+1)
+    // p=0, l=2 => 12 => p+(l)*(N+1)
+    // p=0, l=3 => 18
+    // p=1, l=0 => 1
+    // p=1, l=1 => 7
+
+    int idx1 = participant + lane*(m_participants.length()+1);
+    int idx2 = participant + lane*(m_participants.length());
+
+    col = idx1 % m_participants.length();
+    row = idx2 / m_participants.length();
 }
 
 void MainWindow::handleReadyRead()

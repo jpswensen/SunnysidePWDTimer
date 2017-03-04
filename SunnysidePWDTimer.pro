@@ -14,10 +14,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    editcompetitorsdialog.cpp
+    editcompetitorsdialog.cpp \
+    participantinfo.cpp
 
 HEADERS  += mainwindow.h \
-    editcompetitorsdialog.h
+    editcompetitorsdialog.h \
+    participantinfo.h
 
 FORMS    += mainwindow.ui \
     editcompetitorsdialog.ui

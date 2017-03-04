@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1023</width>
+    <width>1913</width>
     <height>928</height>
    </rect>
   </property>
@@ -226,7 +226,20 @@
      </layout>
     </item>
     <item row="0" column="0">
-     <widget class="QTableView" name="tableView_2"/>
+     <widget class="QTableView" name="heatsTableView">
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="showGrid">
+       <bool>true</bool>
+      </property>
+      <attribute name="horizontalHeaderVisible">
+       <bool>true</bool>
+      </attribute>
+      <attribute name="verticalHeaderHighlightSections">
+       <bool>false</bool>
+      </attribute>
+     </widget>
     </item>
     <item row="1" column="0">
      <widget class="QFrame" name="frame">
@@ -593,7 +606,7 @@
             </size>
            </property>
            <property name="autoFillBackground">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="styleSheet">
             <string notr="true">background-color:black;</string>
@@ -720,7 +733,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1023</width>
+     <width>1913</width>
      <height>22</height>
     </rect>
    </property>
