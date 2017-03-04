@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2015, Majenko Technologies
+   Copyright (c) 2017, John Swensen
    All rights reserved.
 
    Redistribution and use in source and binary forms, with or without modification,
@@ -11,10 +11,6 @@
  * * Redistributions in binary form must reproduce the above copyright notice, this
      list of conditions and the following disclaimer in the documentation and/or
      other materials provided with the distribution.
-
- * * Neither the name of Majenko Technologies nor the names of its
-     contributors may be used to endorse or promote products derived from
-     this software without specific prior written permission.
 
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -32,13 +28,6 @@
 
 #define USE_US_TIMER 1
 
-/*
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-#include <WiFiUDP.h>
-*/
-
 #include <algorithm>
 
 #define LANE1_PIN D1
@@ -47,25 +36,6 @@
 #define LANE4_PIN D4
 
 #define STARTGATE_PIN D7
-
-/* Set these to your desired credentials. */
-const char *ssid = "PWDTimer";
-const char *password = "fastcar";
-
-/* Set the IP address of the access point */
-/*
-IPAddress local_IP(192, 168, 3, 1);
-IPAddress gateway(192, 168, 3, 1);
-IPAddress subnet(255, 255, 255, 0);
-
-IPAddress broadcastIp(192, 168, 3, 255);
-
-char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
-
-//ESP8266WebServer server(80);
-
-//WiFiUDP UDP;
-*/
 
 /* Variables for maintaining the race information */
 typedef enum TimerStateEnum {
@@ -79,40 +49,13 @@ TimerState_t state = RESET;
 long startTime = 0;
 long endTime[4] = {0, 0, 0, 0};
 
-/* Just a little test message.  Go to http://192.168.4.1 in a web browser
-   connected to this access point to see it.
-*/
-/*void handleRoot() {
-  server.send(200, "text/html", "<h1>You are connected</h1>");
-}
-*/
-
 void setup() {
   delay(1000);
   Serial.begin(115200);
   Serial.println();
 
-/*
-  Serial.print("Setting soft-AP configuration ... ");
-  Serial.println(WiFi.softAPConfig(local_IP, gateway, subnet) ? "Ready" : "Failed!");
-
-  Serial.print("Setting soft-AP ... ");
-  Serial.println(WiFi.softAP(ssid) ? "Ready" : "Failed!");
-
-  Serial.print("Soft-AP IP address = ");
-  IPAddress myIP = WiFi.softAPIP();
-  Serial.println(myIP);
-
-  if (UDP.begin(8888) == 1) {
-    Serial.println("UDP port opened on port 8888");
-  }
-*/
-
   setupInterrupts();
 
-  //server.on("/", handleRoot);
-  //server.begin();
-  //Serial.println("HTTP server started");
 }
 
 void setupInterrupts () {
@@ -263,22 +206,5 @@ void loop() {
   }
   Serial.println("*");
 
-  /*
-  // If the race has started, send out the <status,start time, current time, lane end times x 4>
-  UDP.beginPacket(broadcastIp, 8888);
-  UDP.write("$");
-  UDP.write(stateBuffer);
-  UDP.write(",");
-  UDP.write(startTimeBuffer);
-  UDP.write(",");
-  UDP.write(currentTimeBuffer);
-  for (int i = 0 ; i < 4 ; i++)
-  {
-    UDP.write(",");
-    UDP.write(endTimeBuffer[i]);
-  }
-  UDP.write("*\n");
-  UDP.endPacket();
-  */
   delay(50);
 }
