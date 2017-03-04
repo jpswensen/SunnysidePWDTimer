@@ -6,8 +6,17 @@
 #include <QPrintDialog>
 #include <QLabel>
 #include <array>
+#include <QtSerialPort/QtSerialPort>
 
 namespace Ui {
+
+typedef enum TimerStateEnum {
+  UNDEFINED = 0,
+  RESET,
+  IN_RACE,
+  FINISHED
+} TimerState_t;
+
 class MainWindow;
 }
 
@@ -27,11 +36,22 @@ private:
     std::array<QLabel *,4> racerTimes;
     std::array<QLabel *,4> racerFinish;
 
+    QSerialPort *m_serialPort;
+    QByteArray  m_readData;
+    QTimer      m_timer;
+    int         m_place;
+
+    QTextStream m_standardOutput;
+
 
 private slots:
     void on_resetButton_clicked();
     void on_startButton_clicked();
     void on_acceptButton_clicked();
+
+    void handleReadyRead();
+    void handleTimeout();
+    void handleError(QSerialPort::SerialPortError serialPortError);
 
 };
 
