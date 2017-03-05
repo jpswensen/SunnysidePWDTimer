@@ -8,6 +8,7 @@
 #include <array>
 #include <QtSerialPort/QtSerialPort>
 #include "participantinfo.h"
+#include "editcompetitorsdialog.h"
 
 namespace Ui {
 
@@ -61,7 +62,18 @@ private:
     int m_currentHeat;
     QList<ParticipantInfo> m_currentHeatParticipants;
 
+    QString m_filename;
+    EditCompetitorsDialog* m_ecd;
+
 private slots:
+
+    void loadRaces();
+    void saveRaces();
+    void saveRacesAs();
+
+    void acceptParticipantsDialog();
+    void rejectParticipantsDialog();
+
     void on_resetButton_clicked();
     void on_startButton_clicked();
     void on_acceptButton_clicked();

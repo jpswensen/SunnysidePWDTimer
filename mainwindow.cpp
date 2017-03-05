@@ -4,6 +4,8 @@
 #include <QTextStream>
 #include <QStandardItem>
 #include <QDesktopWidget>
+#include <QFileDialog>
+#include <QFile>
 
 #include "editcompetitorsdialog.h"
 
@@ -11,7 +13,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_serialPort(NULL),
-    m_standardOutput(stdout)
+    m_standardOutput(stdout),
+    m_filename("")
 {
     ui->setupUi(this);
 
@@ -22,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     racerFinish = {{ui->racerFinish1, ui->racerFinish2, ui->racerFinish3, ui->racerFinish4}};
 
     // Fake some racer names so that we can fill in the race brackets
+    /*
     m_participants.append( ParticipantInfo("Jacob Swensen","Reverse Flash"));
     m_participants.append( ParticipantInfo("Aaron Swensen","The Alchemist"));
     m_participants.append( ParticipantInfo("Adam Swensen","Kokipolo"));
@@ -37,7 +41,11 @@ MainWindow::MainWindow(QWidget *parent) :
         m_standardOutput << i << " " << parts[i] << " " << lanes[i] << endl;
         m_participants[parts[i]].setRaceTime(lanes[i], 1.45);
     }
+    */
 
+    connect(ui->actionLoad_races, &QAction::triggered, this, &MainWindow::loadRaces);
+    connect(ui->actionSave_races, &QAction::triggered, this, &MainWindow::saveRaces);
+    connect(ui->actionSave_races_as, &QAction::triggered, this, &MainWindow::saveRacesAs);
 
     // Initialize the table with the current participants
     updateHeatsTable();
@@ -46,6 +54,80 @@ MainWindow::MainWindow(QWidget *parent) :
     setupSerial();
 
 
+}
+
+void MainWindow::loadRaces()
+{
+    m_standardOutput << "load races" << endl;
+    QFileDialog dialog(this);
+    dialog.setNameFilter(tr("CSV (*.csv)"));
+
+    m_participants.clear();
+
+    QStringList fileNames;
+    if (dialog.exec())
+    {
+        fileNames = dialog.selectedFiles();
+        m_filename = fileNames[0];
+        QFile file(fileNames[0]);
+        if (!file.open(QIODevice::ReadOnly)) {
+            qDebug() << file.errorString();
+            return ;
+        }
+
+
+        while (!file.atEnd()) {
+            QStringList wordList;
+            QByteArray line = file.readLine();
+            foreach( QByteArray item, line.split(',') )
+                wordList << item;
+
+            float raceTimes[4] = {wordList[2].toFloat(),wordList[3].toFloat(),wordList[4].toFloat(),wordList[5].toFloat()};
+
+            m_participants.append( ParticipantInfo(wordList[0],wordList[1],raceTimes));
+        }
+
+        file.close();
+
+        updateHeatsTable();
+    }
+}
+
+void MainWindow::saveRaces()
+{
+    m_standardOutput << "save races" << endl;
+    if (m_filename == "")
+    {
+        saveRacesAs();
+    }
+    else
+    {
+        QFile file(m_filename);
+        file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text );
+        QTextStream out(&file);
+
+        for (int i = 0 ; i < m_participants.length() ; i++)
+        {
+            ParticipantInfo part = m_participants.at(i);
+
+            out << part.participantName() << "," << part.carName() << "," << part.raceTime(0) << "," << part.raceTime(1) << "," << part.raceTime(2) << "," << part.raceTime(3) << ",\n";
+
+        }
+        out.flush();
+        file.close();
+    }
+}
+
+void MainWindow::saveRacesAs()
+{
+    m_standardOutput << "save races as" << endl;
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Save race data"), "",
+            tr("CSV (*.csv)"));
+     m_filename = fileName;
+
+     saveRaces();
 }
 
 MainWindow::~MainWindow()
@@ -303,13 +385,29 @@ void MainWindow::handleError(QSerialPort::SerialPortError serialPortError)
 
 void MainWindow::on_competitorsButton_clicked()
 {
-    EditCompetitorsDialog* ecd = new EditCompetitorsDialog(m_participants, this);
-    const QRect availableGeometry = QApplication::desktop()->availableGeometry(ecd);
-    ecd->resize(availableGeometry.width() / 3, availableGeometry.height() * 2 / 3);
-    ecd->move((availableGeometry.width() - ecd->width()) / 2,
-                        (availableGeometry.height() - ecd->height()) / 2);
+    m_ecd = new EditCompetitorsDialog(m_participants, this);
+    const QRect availableGeometry = QApplication::desktop()->availableGeometry(m_ecd);
+    m_ecd->resize(availableGeometry.width() / 3, availableGeometry.height() * 2 / 3);
+    m_ecd->move((availableGeometry.width() - m_ecd->width()) / 2,
+                        (availableGeometry.height() - m_ecd->height()) / 2);
 
-    ecd->show();
+    connect(m_ecd, SIGNAL(accepted()), this, SLOT(acceptParticipantsDialog()));
+    //connect(m_ecd->buttonBox(), SIGNAL(rejected()), this, SLOT(rejectParticipantsDialog()));
+
+    m_ecd->show();
+
+}
+
+void MainWindow::acceptParticipantsDialog()
+{
+    m_participants = m_ecd->participants();
+
+
+    updateHeatsTable();
+}
+
+void MainWindow::rejectParticipantsDialog()
+{
 
 }
 

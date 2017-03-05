@@ -20,6 +20,17 @@ ParticipantInfo::ParticipantInfo(QString name, QString carName)
     }
 }
 
+ParticipantInfo::ParticipantInfo(QString name, QString carName, float raceTimes[4])
+{
+    m_participantName = name;
+    m_carName = carName;
+
+    for (int i = 0 ; i < 4 ; i++)
+    {
+        m_raceTimes[i] = raceTimes[i];
+    }
+}
+
 QString ParticipantInfo::participantName()
 {
     return m_participantName;

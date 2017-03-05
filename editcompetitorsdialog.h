@@ -5,6 +5,8 @@
 #include <QStandardItem>
 #include <QList>
 #include <QPushButton>
+#include <QSignalMapper>
+#include <QDialogButtonBox>
 
 #include "participantinfo.h"
 
@@ -23,10 +25,18 @@ public:
 
     void updateCompetitorsTable ();
 
+    QDialogButtonBox* buttonBox();
+
+    QList<ParticipantInfo> participants();
+
 private:
     Ui::EditCompetitorsDialog *ui;
 
     QList<ParticipantInfo>& m_participants;
+
+private slots:
+    void onDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
+    void handleDeleteButton(int row);
 };
 
 #endif // EDITCOMPETITORSDIALOG_H

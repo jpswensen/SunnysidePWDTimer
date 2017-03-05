@@ -234,7 +234,7 @@
        <bool>true</bool>
       </property>
       <attribute name="horizontalHeaderVisible">
-       <bool>true</bool>
+       <bool>false</bool>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>false</bool>
@@ -741,7 +741,9 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionLoad_racers_from_CSV"/>
+    <addaction name="actionLoad_races"/>
+    <addaction name="actionSave_races"/>
+    <addaction name="actionSave_races_as"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -754,9 +756,25 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionLoad_racers_from_CSV">
+  <action name="actionLoad_races">
    <property name="text">
-    <string>Load racers from CSV</string>
+    <string>Load races</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave_races">
+   <property name="text">
+    <string>Save races</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSave_races_as">
+   <property name="text">
+    <string>Save races as...</string>
    </property>
   </action>
  </widget>

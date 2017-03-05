@@ -13,6 +13,7 @@ private:
 public:
     ParticipantInfo();
     ParticipantInfo(QString name, QString carName);
+    ParticipantInfo(QString name, QString carName, float raceTimes[4]);
 
     QString participantName();
     QString carName();
