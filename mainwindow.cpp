@@ -76,6 +76,7 @@ void MainWindow::loadRaces()
         }
 
         // Iterate through every line, split it up by commas, generate the participant list (with times) and reload the table
+        int i = 1;
         while (!file.atEnd()) {
             QStringList wordList;
             QByteArray line = file.readLine();
@@ -84,7 +85,7 @@ void MainWindow::loadRaces()
 
             float raceTimes[4] = {wordList[2].toFloat(),wordList[3].toFloat(),wordList[4].toFloat(),wordList[5].toFloat()};
 
-            m_participants.append( ParticipantInfo(wordList[0],wordList[1],raceTimes));
+            m_participants.append( ParticipantInfo(wordList[0], wordList[1], i++, raceTimes));
         }
 
         file.close();
@@ -159,7 +160,7 @@ void MainWindow::onColumnChanged(const QModelIndex &index)
     for (int i = 0 ; i < 4 ; i++)
     {
         m_standardOutput << i << " " << parts[i] << " " << m_participants[parts[i]].participantName() << endl;
-        racerNames[i]->setText(m_participants[parts[i]].participantName());
+        racerNames[i]->setText(m_participants[parts[i]].participantName() + " (" + QString::number(m_participants[parts[i]].carNumber()) + ")");
     }
 }
 
@@ -204,7 +205,6 @@ void MainWindow::setupSerial ()
             m_readData.clear();
 
 
-            m_place = 1;
             for (int i = 0 ; i < 4 ; i++)
             {
                 racerTimes[i]->setText("0.000");
@@ -262,6 +262,8 @@ void MainWindow::updateHeatsTable ()
     }
 
     ui->heatsTableView->setModel(model);
+
+    ui->heatsTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     QFont font = ui->competitorsButton->font();
     font.setPointSize(48);
@@ -423,7 +425,26 @@ void MainWindow::rejectParticipantsDialog()
 
 void MainWindow::on_resultsButton_clicked()
 {
+    m_rrd = new RaceResultsDialog(m_participants, this);
+    const QRect availableGeometry = QApplication::desktop()->availableGeometry(m_rrd);
+    m_rrd->resize(availableGeometry.width(), availableGeometry.height());
+    m_rrd->move((availableGeometry.width() - m_rrd->width()) / 2,
+                        (availableGeometry.height() - m_rrd->height()) / 2);
 
+    //connect(m_ecd, SIGNAL(accepted()), this, SLOT(acceptParticipantsDialog()));
+    //connect(m_ecd->buttonBox(), SIGNAL(rejected()), this, SLOT(rejectParticipantsDialog()));
+
+    QFont font = ui->competitorsButton->font();
+    font.setPointSize(24);
+    m_rrd->setFont(font);
+
+    font.setPointSize(36);
+    font.setBold(false);
+    m_rrd->setTableFont(font);
+
+
+
+    m_rrd->show();
 }
 
 void MainWindow::on_resetButton_clicked()
@@ -441,7 +462,6 @@ void MainWindow::on_resetButton_clicked()
     m_readData.clear();
 
 
-    m_place = 1;
     for (int i = 0 ; i < 4 ; i++)
     {
         racerTimes[i]->setText("0.000");
@@ -474,21 +494,6 @@ void MainWindow::on_acceptButton_clicked()
     }
     updateHeatsTable();
 
-
-
-    /*
-    // TESTING: Print a whole window
-    // FIXME: This is printing too large, even when I tell the print dialog to "scale to fit page".
-    // I think I probably need to use a QPainter to paint to the full size and then just scale that
-    // QPainter output and then render to the printer.
-    QPrinter printer;
-    QPrintDialog(&printer).exec();
-
-    // FIXME: Create QPainter and render the window to the QPainter instead
-    this->render(&printer);
-
-    // FIXME: Scale the QPainter and then render the QPainter to the QPrinter
-    */
 }
 
 

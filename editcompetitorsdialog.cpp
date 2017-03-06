@@ -89,7 +89,7 @@ QList<ParticipantInfo> EditCompetitorsDialog::participants()
         QString name = ui->participantsTable->model()->data(ui->participantsTable->model()->index(i,0)).toString();
         QString carName = ui->participantsTable->model()->data(ui->participantsTable->model()->index(i,1)).toString();
 
-        retval.append( ParticipantInfo(name,carName));
+        retval.append( ParticipantInfo(name, carName, i+1));
     }
 
     return retval;

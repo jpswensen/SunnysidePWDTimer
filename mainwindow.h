@@ -9,16 +9,19 @@
 #include <QtSerialPort/QtSerialPort>
 #include "participantinfo.h"
 #include "editcompetitorsdialog.h"
+#include "raceresultsdialog.h"
 
 namespace Ui {
 
+/*! Enumeration for specifying lane by name */
 typedef enum LaneEnum {
-    LANE1 = 0,
-    LANE2,
-    LANE3,
-    LANE4
+    LANEA = 0,
+    LANEB,
+    LANEC,
+    LANED
 } Lane_t;
 
+/*! Enumeration for the possibles states of the microcontroller timer hardware */
 typedef enum TimerStateEnum {
   UNDEFINED = 0,
   RESET,
@@ -29,6 +32,10 @@ typedef enum TimerStateEnum {
 class MainWindow;
 }
 
+
+/*!
+ * \brief The MainWindow class
+ */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -46,24 +53,33 @@ public:
 private:
     Ui::MainWindow *ui;
 
+    // Various arrays to give indexed access to UI elements.
     std::array<QLabel *,4> racerNames;
     std::array<QLabel *,4> racerLanes;
     std::array<QLabel *,4> racerTimes;
     std::array<QLabel *,4> racerFinish;
 
+    // Variables for use with serial port hardware
     QSerialPort *m_serialPort;
     QByteArray  m_readData;
     QTimer      m_timer;
-    int         m_place;
 
     QTextStream m_standardOutput;
 
+    // The full list of participants and their current race times
     QList<ParticipantInfo> m_participants;
+
+    // Variables indicating the current race, the current participants
     int m_currentHeat;
     QList<ParticipantInfo> m_currentHeatParticipants;
 
+    // Stores the current race filename
     QString m_filename;
+
+
+    // Secondary dialogue window used for modifying racers.
     EditCompetitorsDialog* m_ecd;
+    RaceResultsDialog*     m_rrd;
 
 private slots:
 

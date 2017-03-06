@@ -12,30 +12,37 @@ private:
 
     QString m_participantName;  /*!< The name of the participant */
     QString m_carName;          /*!< The name of the participant's car */
+    int     m_carNumber;        /*!< The name of the participant's car */
     float   m_raceTimes[4];     /*!< The race times in each lane */
 
-public:
+private:
 
     //! Default onstructor.
     ParticipantInfo();
 
     //! Constructor for names and no race times.
+
+
+public:
+    //! Contructor for names and race times.
     /*!
       Sets the member name and car name, with zero race times.
     */
-    ParticipantInfo(QString name, QString carName);
+    ParticipantInfo(QString name, QString carName, int carNumber);
 
-    //! Contructor for names and race times.
+
     /*!
       Sets the member name, car name, and race times.
     */
-    ParticipantInfo(QString name, QString carName, float raceTimes[4]);
+    ParticipantInfo(QString name, QString carName, int carNumber, float raceTimes[4]);
 
     //! Accessor for the participant name.
     QString participantName();
 
     //! Accessor for the //! Accessor for the participant name. name.
     QString carName();
+
+    int carNumber() { return m_carNumber; }
 
     //! Getter for one race time.
     //! \param idx The index of the race by lane number (0=A,1=B,2=C,3=D)
@@ -45,6 +52,8 @@ public:
     //! \param idx The index of the race by lane number (0=A,1=B,2=C,3=D)
     //! \param time The race time to be set
     void setRaceTime(int idx, float time);
+
+    float averageRaceTime();
 };
 
 #endif // PARTICIPANTINFO_H

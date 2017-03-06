@@ -9,10 +9,11 @@ ParticipantInfo::ParticipantInfo()
     }
 }
 
-ParticipantInfo::ParticipantInfo(QString name, QString carName)
+ParticipantInfo::ParticipantInfo(QString name, QString carName, int carNumber)
 {
     m_participantName = name;
     m_carName = carName;
+    m_carNumber = carNumber;
 
     for (int i = 0 ; i < 4 ; i++)
     {
@@ -20,10 +21,11 @@ ParticipantInfo::ParticipantInfo(QString name, QString carName)
     }
 }
 
-ParticipantInfo::ParticipantInfo(QString name, QString carName, float raceTimes[4])
+ParticipantInfo::ParticipantInfo(QString name, QString carName, int carNumber, float raceTimes[4])
 {
     m_participantName = name;
     m_carName = carName;
+    m_carNumber = carNumber;
 
     for (int i = 0 ; i < 4 ; i++)
     {
@@ -49,4 +51,9 @@ float ParticipantInfo::raceTime(int idx)
 void ParticipantInfo::setRaceTime(int idx, float time)
 {
     m_raceTimes[idx] = time;
+}
+
+float ParticipantInfo::averageRaceTime()
+{
+    return (m_raceTimes[0]+m_raceTimes[1]+m_raceTimes[2]+m_raceTimes[3])/4.0;
 }
