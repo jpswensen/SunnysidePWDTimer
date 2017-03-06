@@ -501,24 +501,15 @@ void MainWindow::on_acceptButton_clicked()
 
 
 // NOTES: Here are a few notes about things I have been thinking about how the code should work
-//  1) We want to make it easy to be able to "re-run" a particular heat in the case that a car jumps the track, etc.
-//     So, the plan is to have the columns in the "Heat Overview Panel" be selectable. If selected, then it will populate the
-//     "Single Heat Panel" with the racer names. Then if the race is reset, run, and accepted, it will replace the results
-//     in the "Heat Overview Panel". DONE
-//  2) When running a race, the time will increment equally for all the racers in the "Single Heat Panel" and then stop
-//     incrementing once that car has crossed the finish line. This way we don't need a separate timer for the overall
-//     elapsed time. The text should be big enough on a projector for everyone to easily see. DONE
-//  3) Printing would be nice so that kids can take home a memory of how they did. It might even be nice to have a separate printout for each boy
-//     These could easily be rendered off-screen and just printed out with their time from all 4 races. IN PROGRESS
-//  4) I should make one more dialog to select the serial port. I don't want to have to recompile if it shows up with a different name. I also plan
+//  1) I should make one more dialog to select the serial port. I don't want to have to recompile if it shows up with a different name. I also plan
 //     on having binaries for Windows and MacOS, so it makes sense to have it selectable by the user because the naming is very different on different
 //     platforms. The setup will simply query all the serial ports like we do now and then populate a drop-down list to choose from. We can probably
 //     still assume 115200-8-N-1 because the microcontroller defines that.
-//  5) I think I need a better protocal/interaction between the microcontroller and the QSerialPort interface. Sometimes it glitches on both the time
+//  2) I think I need a better protocal/interaction between the microcontroller and the QSerialPort interface. Sometimes it glitches on both the time
 //     and the finish position when doing a clear. Also, the start button doesn't reall do anything. One possible way of doing things will be to send
 //     the RESET, wait a bit, then flush the serial port. That way all the new data coming it will certainly be all zeros. I think the problem is either
 //     that it takes a few hundred milliseconds for the RESET to take effect in the microcontroller, or there are some messages buffered up.
-//  6) I want to add a quick visual indicator of the status of the start gate. More than anything, we want to ensure that the start gate is closed and
+//  3) I want to add a quick visual indicator of the status of the start gate. More than anything, we want to ensure that the start gate is closed and
 //     that we are looking for it to open before starting the timers. I could ensure that after a RESET has been sent that the (largely symbolic) START
 //     button cannot be pressed until the microcontroller verifies that the gate is closed. Hence, we might need to add one more state to the microcontroller
 //     code that is after the RESET and after the gate is close and after the START button is pressed. I propose:
