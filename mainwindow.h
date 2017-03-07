@@ -10,6 +10,7 @@
 #include "participantinfo.h"
 #include "editcompetitorsdialog.h"
 #include "raceresultsdialog.h"
+#include "serialportdialog.h"
 
 namespace Ui {
 
@@ -23,10 +24,11 @@ typedef enum LaneEnum {
 
 /*! Enumeration for the possibles states of the microcontroller timer hardware */
 typedef enum TimerStateEnum {
-  UNDEFINED = 0,
-  RESET,
-  IN_RACE,
-  FINISHED
+    UNDEFINED = 0,
+    RESET,
+    SET,
+    IN_RACE,
+    FINISHED
 } TimerState_t;
 
 class MainWindow;
@@ -60,6 +62,7 @@ private:
     std::array<QLabel *,4> racerFinish;
 
     // Variables for use with serial port hardware
+    QSerialPortInfo m_serialPortInfo;
     QSerialPort *m_serialPort;
     QByteArray  m_readData;
     QTimer      m_timer;
@@ -80,8 +83,10 @@ private:
     // Secondary dialogue window used for modifying racers.
     EditCompetitorsDialog* m_ecd;
     RaceResultsDialog*     m_rrd;
+    SerialPortDialog*      m_spd;
 
 private slots:
+
 
     void loadRaces();
     void saveRaces();
@@ -90,12 +95,15 @@ private slots:
     void acceptParticipantsDialog();
     void rejectParticipantsDialog();
 
+    void acceptSerialPortDialog();
+
     void on_resetButton_clicked();
     void on_startButton_clicked();
     void on_acceptButton_clicked();
 
     void on_competitorsButton_clicked();
     void on_resultsButton_clicked();
+    void on_serialButton_clicked();
 
     void handleReadyRead();
     void handleTimeout();

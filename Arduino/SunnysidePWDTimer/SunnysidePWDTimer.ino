@@ -32,8 +32,8 @@
 
 #define LANE1_PIN D1
 #define LANE2_PIN D2
-#define LANE3_PIN D3
-#define LANE4_PIN D4
+#define LANE3_PIN D5
+#define LANE4_PIN D6
 
 #define STARTGATE_PIN D7
 
@@ -41,6 +41,7 @@
 typedef enum TimerStateEnum {
   UNDEFINED = 0,
   RESET,
+  SET,
   IN_RACE,
   FINISHED
 } TimerState_t;
@@ -123,7 +124,7 @@ void lane4Interrupt() {
 
 void startGateInterrupt() {
   //Serial.println("Start gate interrupt");
-  if (state == RESET)
+  if (state == SET)
   {
     startTime = micros();
     
@@ -136,7 +137,39 @@ void startGateInterrupt() {
   }
 }
 
+void sendMessage(int currentTime)
+{
+  char stateBuffer[32];
+  char startTimeBuffer[32];
+  char currentTimeBuffer[32];
+  char endTimeBuffer[4][32];
+
+  itoa(state, stateBuffer, 10);
+  itoa(startTime, startTimeBuffer, 10);
+  itoa(currentTime, currentTimeBuffer, 10);
+  for (int i = 0 ; i < 4 ; i++)
+  {
+    itoa (endTime[i], endTimeBuffer[i], 10);
+  }
+
+  Serial.print("$");
+  Serial.print(stateBuffer);
+  Serial.print(",");
+  Serial.print(startTimeBuffer);
+  Serial.print(",");
+  Serial.print(currentTimeBuffer);
+  for (int i = 0 ; i < 4 ; i++)
+  {
+    Serial.print(",");
+    Serial.print(endTimeBuffer[i]);
+  }
+  Serial.println("*");
+}
+
 void loop() {
+
+  // TODO: Change this to a state machine. This main loop is current atrocious.
+
 
   // Check whether a reset command has been sent
   if (Serial.available() >=5)
@@ -158,6 +191,43 @@ void loop() {
     }
   }
 
+  long currentTime = -1;
+  
+  switch (state) {
+    case RESET:
+      startTime = -1;
+
+      if (digitalRead(STARTGATE_PIN) == HIGH)
+      {
+        state = SET;
+      }
+      else
+      {
+        sendMessage(currentTime);
+      }
+      
+      break;
+
+    case SET:
+      sendMessage(currentTime);
+      break;
+
+    case IN_RACE:
+      currentTime = micros();
+      sendMessage(currentTime);
+      break;
+
+    case FINISHED:
+      currentTime = std::max(std::max(std::max(endTime[0], endTime[1]),endTime[2]),endTime[3]);
+      sendMessage(currentTime);
+      break;
+    
+  }
+
+  delay(50);
+  
+
+  /*
   // Output the current date
   long currentTime = -1;
 
@@ -207,4 +277,5 @@ void loop() {
   Serial.println("*");
 
   delay(50);
+  */
 }

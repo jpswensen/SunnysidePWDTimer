@@ -33,6 +33,8 @@ private:
 private slots:
     void on_printButton_clicked();
     void on_closeButton_clicked();
+
+    void sortByColumn(int column);
 };
 
 #endif // RACERESULTSDIALOG_H

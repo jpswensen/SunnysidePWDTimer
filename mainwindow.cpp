@@ -24,25 +24,6 @@ MainWindow::MainWindow(QWidget *parent) :
     racerTimes  = {{ui->racerTime1, ui->racerTime2, ui->racerTime3, ui->racerTime4}};
     racerFinish = {{ui->racerFinish1, ui->racerFinish2, ui->racerFinish3, ui->racerFinish4}};
 
-    // Fake some racer names so that we can fill in the race brackets
-    /*
-    m_participants.append( ParticipantInfo("Jacob Swensen","Reverse Flash"));
-    m_participants.append( ParticipantInfo("Aaron Swensen","The Alchemist"));
-    m_participants.append( ParticipantInfo("Adam Swensen","Kokipolo"));
-    m_participants.append( ParticipantInfo("Tommy Swensen","Knock Knock"));
-    m_participants.append( ParticipantInfo("John Swensen","King of the Hill"));
-    m_participants.append( ParticipantInfo("Brittney Swensen","Superfast"));
-
-    int parts[4];
-    int lanes[4];
-    heatToParticipants(3,parts,lanes);
-    for (int i = 0 ; i < 4 ; i++)
-    {
-        m_standardOutput << i << " " << parts[i] << " " << lanes[i] << endl;
-        m_participants[parts[i]].setRaceTime(lanes[i], 1.45);
-    }
-    */
-
     connect(ui->actionLoad_races, &QAction::triggered, this, &MainWindow::loadRaces);
     connect(ui->actionSave_races, &QAction::triggered, this, &MainWindow::saveRaces);
     connect(ui->actionSave_races_as, &QAction::triggered, this, &MainWindow::saveRacesAs);
@@ -50,10 +31,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // Initialize the table with the current participants
     updateHeatsTable();
 
-    // Configure the serial port
-    setupSerial();
-
-
+    // Set the serial port status to not connected
+    ui->resetButton->setEnabled(false);
+    ui->acceptButton->setEnabled(false);
 }
 
 void MainWindow::loadRaces()
@@ -144,13 +124,29 @@ void MainWindow::saveRacesAs()
 MainWindow::~MainWindow()
 {
     if (m_serialPort)
+    {
         m_serialPort->close();
+        delete m_serialPort;
+    }
+
+
 
     delete ui;
 }
 
 void MainWindow::onColumnChanged(const QModelIndex &index)
 {
+    // Send RESET to the microcontroller
+    m_serialPort->write("RESET");
+    m_serialPort->flush();
+    m_readData.clear();
+
+    for (int i = 0 ; i < 4 ; i++)
+    {
+        racerTimes[i]->setText("0.000");
+        racerFinish[i]->setText("-");
+    }
+
     m_currentHeat = index.column();
 
     int parts[4];
@@ -161,71 +157,51 @@ void MainWindow::onColumnChanged(const QModelIndex &index)
     {
         m_standardOutput << i << " " << parts[i] << " " << m_participants[parts[i]].participantName() << endl;
         racerNames[i]->setText(m_participants[parts[i]].participantName() + " (" + QString::number(m_participants[parts[i]].carNumber()) + ")");
+
+        this->racerTimes[i]->setText( QString::number(m_participants[parts[i]].raceTime(i),'f',4) );
     }
 }
 
 void MainWindow::setupSerial ()
 {
-    const auto serialPortInfos = QSerialPortInfo::availablePorts();
+    m_standardOutput << endl << "Opening serial port" << endl;
+    m_serialPort = new QSerialPort(m_serialPortInfo);
+    m_serialPort->setBaudRate(QSerialPort::Baud115200);
+    m_serialPort->setDataBits(QSerialPort::Data8);
+    m_serialPort->setFlowControl(QSerialPort::NoFlowControl);
+    m_serialPort->setParity(QSerialPort::NoParity);
+    m_serialPort->setStopBits(QSerialPort::OneStop);
+    bool success = m_serialPort->open(QIODevice::ReadWrite);
 
-    m_standardOutput << QObject::tr("Total number of ports available: ") << serialPortInfos.count() << endl;
+    if (success)
+    {
+        ui->connectionLabel->setText("Connected");
 
-    const QString blankString = QObject::tr("N/A");
-    QString description;
-    QString manufacturer;
-    QString serialNumber;
-
-    for (const QSerialPortInfo &serialPortInfo : serialPortInfos) {
-        description = serialPortInfo.description();
-        manufacturer = serialPortInfo.manufacturer();
-        serialNumber = serialPortInfo.serialNumber();
-        m_standardOutput << endl
-            << QObject::tr("Port: ") << serialPortInfo.portName() << endl
-            << QObject::tr("Location: ") << serialPortInfo.systemLocation() << endl
-            << QObject::tr("Description: ") << (!description.isEmpty() ? description : blankString) << endl
-            << QObject::tr("Manufacturer: ") << (!manufacturer.isEmpty() ? manufacturer : blankString) << endl
-            << QObject::tr("Serial number: ") << (!serialNumber.isEmpty() ? serialNumber : blankString) << endl
-            << QObject::tr("Vendor Identifier: ") << (serialPortInfo.hasVendorIdentifier() ? QByteArray::number(serialPortInfo.vendorIdentifier(), 16) : blankString) << endl
-            << QObject::tr("Product Identifier: ") << (serialPortInfo.hasProductIdentifier() ? QByteArray::number(serialPortInfo.productIdentifier(), 16) : blankString) << endl
-            << QObject::tr("Busy: ") << (serialPortInfo.isBusy() ? QObject::tr("Yes") : QObject::tr("No")) << endl;
-
-        if (serialPortInfo.portName().startsWith("cu.wchusbserial"))
-        {
-            m_standardOutput << endl << "Opening serial port" << endl;
-            m_serialPort = new QSerialPort(serialPortInfo);
-            m_serialPort->setBaudRate(QSerialPort::Baud115200);
-            m_serialPort->setDataBits(QSerialPort::Data8);
-            m_serialPort->setFlowControl(QSerialPort::NoFlowControl);
-            m_serialPort->setParity(QSerialPort::NoParity);
-            m_serialPort->setStopBits(QSerialPort::OneStop);
-            m_serialPort->open(QIODevice::ReadWrite);
-
-            m_serialPort->write("RESET");
-            m_serialPort->flush();
-            m_readData.clear();
-
-
-            for (int i = 0 ; i < 4 ; i++)
-            {
-                racerTimes[i]->setText("0.000");
-                racerFinish[i]->setText("-");
-            }
-            m_serialPort->flush();
-            m_readData.clear();
-
-            connect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::handleReadyRead);
-            connect(m_serialPort, static_cast<void (QSerialPort::*)(QSerialPort::SerialPortError)>(&QSerialPort::error),
-                        this, &MainWindow::handleError);
-            connect(&m_timer, &QTimer::timeout, this, &MainWindow::handleTimeout);
-
-            m_serialPort->flush();
-            m_readData.clear();
-
-            m_timer.start(5000);
-
-            break;
-        }
+        ui->resetButton->setEnabled(true);
+        ui->acceptButton->setEnabled(true);
     }
+
+    m_serialPort->write("RESET");
+    m_serialPort->flush();
+    m_readData.clear();
+
+    for (int i = 0 ; i < 4 ; i++)
+    {
+        racerTimes[i]->setText("0.000");
+        racerFinish[i]->setText("-");
+    }
+    m_serialPort->flush();
+    m_readData.clear();
+
+    connect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::handleReadyRead);
+    connect(m_serialPort, static_cast<void (QSerialPort::*)(QSerialPort::SerialPortError)>(&QSerialPort::error),
+                this, &MainWindow::handleError);
+    connect(&m_timer, &QTimer::timeout, this, &MainWindow::handleTimeout);
+
+    m_serialPort->flush();
+    m_readData.clear();
+
+    m_timer.start(5000);
 }
 
 void MainWindow::updateHeatsTable ()
@@ -250,11 +226,12 @@ void MainWindow::updateHeatsTable ()
 
             model->setData(model->index(j, column), part.participantName());
 
+            m_standardOutput << i << " " << j << " -- " << part.raceTime(j) << endl;
             if (part.raceTime(j) != 0.0)
             {
                 int row, col;
                 participantLaneToRowColumn(i, (Ui::Lane_t)j, row, col);
-                m_standardOutput << "ASDF " <<  i << " " << j << " " << row << " " << col << endl;
+                //m_standardOutput << "ASDF " <<  i << " " << j << " " << row << " " << col << endl;
                 model->setData(model->index(row, col), QVariant(QColor(Qt::red)), Qt::DecorationRole);
 
             }
@@ -287,7 +264,10 @@ void MainWindow::updateHeatsTable ()
     connect(ui->heatsTableView->selectionModel()
             , SIGNAL(currentColumnChanged(QModelIndex,QModelIndex))
             , SLOT(onColumnChanged(QModelIndex)));
+
 }
+
+
 
 void MainWindow::heatToParticipants (int heat, int (&part)[4], int (&lane)[4])
 {
@@ -339,39 +319,84 @@ void MainWindow::handleReadyRead()
     Ui::TimerState_t state = (Ui::TimerState_t)list.at(0).toInt();
     long startTime = list.at(1).toLong();
     long currentTime = list.at(2).toLong();
-    long endTime[4];
-    for (int i = 0 ; i < 4 ; i++)
+
+    if (state == Ui::RESET)
     {
-        endTime[i] = list.at(3+i).toLong();
-
-        if (endTime[i] == 0)
-        {
-            endTime[i] = currentTime;
-        }
-
-        float tempTime = (endTime[i]-startTime)*1E-6; // time since start in seconds
-
-        this->racerTimes[i]->setText( QString::number(tempTime,'f',4) );
+        ui->stateLabel->setText("On your mark (close gate)");
     }
-
-    for (int i = 0 ; i < 4 ; i++)
+    else if (state == Ui::SET)
     {
-        int numGreaterThan = 0;
-        for (int j = 0 ; j < 4 ; j++)
+        ui->stateLabel->setText("Get set!");
+    }
+    else if (state == Ui::IN_RACE)
+    {
+        ui->stateLabel->setText("Go!");
+        long endTime[4];
+        for (int i = 0 ; i < 4 ; i++)
         {
+            endTime[i] = list.at(3+i).toLong();
 
-            if (endTime[j] > endTime[i])
+            if (endTime[i] == 0)
             {
-                numGreaterThan++;
+                endTime[i] = currentTime;
             }
-        }
-        if (numGreaterThan > 0 || state == Ui::FINISHED)
-            this->racerFinish[i]->setText( QString::number(4-numGreaterThan) );
-    }
 
+            float tempTime = (endTime[i]-startTime)*1E-6; // time since start in seconds
+
+            this->racerTimes[i]->setText( QString::number(tempTime,'f',4) );
+        }
+
+        for (int i = 0 ; i < 4 ; i++)
+        {
+            int numGreaterThan = 0;
+            for (int j = 0 ; j < 4 ; j++)
+            {
+
+                if (endTime[j] > endTime[i])
+                {
+                    numGreaterThan++;
+                }
+            }
+            if (numGreaterThan > 0 || state == Ui::FINISHED)
+                this->racerFinish[i]->setText( QString::number(4-numGreaterThan) );
+        }
+    }
+    else if (state == Ui::FINISHED)
+    {
+        ui->stateLabel->setText("Race complete");
+
+        long endTime[4];
+        for (int i = 0 ; i < 4 ; i++)
+        {
+            endTime[i] = list.at(3+i).toLong();
+
+            if (endTime[i] == 0)
+            {
+                endTime[i] = currentTime;
+            }
+
+            float tempTime = (endTime[i]-startTime)*1E-6; // time since start in seconds
+
+            this->racerTimes[i]->setText( QString::number(tempTime,'f',4) );
+        }
+
+        for (int i = 0 ; i < 4 ; i++)
+        {
+            int numGreaterThan = 0;
+            for (int j = 0 ; j < 4 ; j++)
+            {
+
+                if (endTime[j] > endTime[i])
+                {
+                    numGreaterThan++;
+                }
+            }
+            if (numGreaterThan > 0 || state == Ui::FINISHED)
+                this->racerFinish[i]->setText( QString::number(4-numGreaterThan) );
+        }
+    }
 
     m_readData.clear();
-
 
     if (!m_timer.isActive())
         m_timer.start(5000);
@@ -447,41 +472,56 @@ void MainWindow::on_resultsButton_clicked()
     m_rrd->show();
 }
 
+void MainWindow::on_serialButton_clicked()
+{
+    m_spd = new SerialPortDialog(this);
+
+    connect(m_spd, SIGNAL(accepted()), this, SLOT(acceptSerialPortDialog()));
+
+    /*
+    QFont font = ui->competitorsButton->font();
+    font.setPointSize(24);
+    m_rrd->setFont(font);
+
+    font.setPointSize(36);
+    font.setBold(false);
+    m_rrd->setTableFont(font);
+    */
+
+    m_spd->show();
+}
+
+void MainWindow::acceptSerialPortDialog()
+{
+    m_serialPortInfo = m_spd->getSelectedPort();
+    m_standardOutput << m_serialPortInfo.portName() << endl;
+
+    setupSerial();
+}
+
 void MainWindow::on_resetButton_clicked()
 {
-    ui->resetButton->setEnabled(true);
-    ui->startButton->setEnabled(false);
-    ui->acceptButton->setEnabled(false);
-
-    // TODO: (1) UDP "RESET" message to the microcontroller
-    //       (2) Keep the contestants the same, but zero out the times and the finish positions
-    //       (3) The start button will become "enabled" once the UDP listener thread verifies that the
-    //           microcontroller is in the "RESET" state.
+    // Send RESET to the microcontroller
     m_serialPort->write("RESET");
     m_serialPort->flush();
     m_readData.clear();
-
 
     for (int i = 0 ; i < 4 ; i++)
     {
         racerTimes[i]->setText("0.000");
         racerFinish[i]->setText("-");
     }
-    m_serialPort->flush();
-    m_readData.clear();
 }
 
 void MainWindow::on_startButton_clicked()
 {
-    ui->acceptButton->setEnabled(false);
+
 
     // TODO: Tell the UDP listener thread that it should be ready for the gate to open and the times to start rolling in.
 }
 
 void MainWindow::on_acceptButton_clicked()
 {
-    //ui->resetButton->setEnabled(true);
-    //ui->acceptButton->setEnabled(false);
 
     // Move the results from this race up into the final results
     int parts[4];
@@ -490,7 +530,7 @@ void MainWindow::on_acceptButton_clicked()
 
     for (int i = 0 ; i < 4 ; i++)
     {
-        m_participants[parts[i]].setRaceTime(lanes[i],racerTimes[i]->text().toInt());
+        m_participants[parts[i]].setRaceTime(lanes[i],racerTimes[i]->text().toFloat());
     }
     updateHeatsTable();
 

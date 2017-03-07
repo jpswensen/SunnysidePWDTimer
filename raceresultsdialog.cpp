@@ -13,11 +13,25 @@ RaceResultsDialog::RaceResultsDialog(QList<ParticipantInfo>& participants, QWidg
     ui->setupUi(this);
 
     updateResultsTable();
+
+    connect(ui->resultsTableView->horizontalHeader(),
+            SIGNAL(sectionClicked(int)),
+            this,
+            SLOT(sortByColumn(int)));
 }
 
 RaceResultsDialog::~RaceResultsDialog()
 {
     delete ui;
+}
+
+void RaceResultsDialog::sortByColumn(int column)
+{
+    bool ascending = (ui->resultsTableView->horizontalHeader()->sortIndicatorSection() == column &&
+                      ui->resultsTableView->horizontalHeader()->sortIndicatorOrder() == Qt::DescendingOrder);
+    Qt::SortOrder order = ascending ? Qt::DescendingOrder : Qt::AscendingOrder;
+    ui->resultsTableView->horizontalHeader()->setSortIndicator(column, order);
+    ui->resultsTableView->model()->sort(column, order);
 }
 
 void RaceResultsDialog::setTableFont (QFont& font)

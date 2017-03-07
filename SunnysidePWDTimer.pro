@@ -16,13 +16,16 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     editcompetitorsdialog.cpp \
     participantinfo.cpp \
-    raceresultsdialog.cpp
+    raceresultsdialog.cpp \
+    serialportdialog.cpp
 
 HEADERS  += mainwindow.h \
     editcompetitorsdialog.h \
     participantinfo.h \
-    raceresultsdialog.h
+    raceresultsdialog.h \
+    serialportdialog.h
 
 FORMS    += mainwindow.ui \
     editcompetitorsdialog.ui \
-    raceresultsdialog.ui
+    raceresultsdialog.ui \
+    serialportdialog.ui
