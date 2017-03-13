@@ -56,7 +56,6 @@ void setup() {
   Serial.println();
 
   setupInterrupts();
-
 }
 
 void setupInterrupts () {
@@ -164,6 +163,8 @@ void sendMessage(int currentTime)
     Serial.print(endTimeBuffer[i]);
   }
   Serial.println("*");
+
+
 }
 
 void loop() {

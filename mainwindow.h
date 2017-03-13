@@ -98,7 +98,6 @@ private slots:
     void acceptSerialPortDialog();
 
     void on_resetButton_clicked();
-    void on_startButton_clicked();
     void on_acceptButton_clicked();
 
     void on_competitorsButton_clicked();

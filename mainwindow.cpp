@@ -136,10 +136,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::onColumnChanged(const QModelIndex &index)
 {
-    // Send RESET to the microcontroller
-    m_serialPort->write("RESET");
-    m_serialPort->flush();
-    m_readData.clear();
+    if (m_serialPort)
+    {
+        // Send RESET to the microcontroller
+        m_serialPort->write("RESET");
+        m_serialPort->flush();
+        m_readData.clear();
+    }
 
     for (int i = 0 ; i < 4 ; i++)
     {
@@ -502,9 +505,12 @@ void MainWindow::acceptSerialPortDialog()
 void MainWindow::on_resetButton_clicked()
 {
     // Send RESET to the microcontroller
-    m_serialPort->write("RESET");
-    m_serialPort->flush();
-    m_readData.clear();
+    if (m_serialPort)
+    {
+        m_serialPort->write("RESET");
+        m_serialPort->flush();
+        m_readData.clear();
+    }
 
     for (int i = 0 ; i < 4 ; i++)
     {
@@ -513,12 +519,6 @@ void MainWindow::on_resetButton_clicked()
     }
 }
 
-void MainWindow::on_startButton_clicked()
-{
-
-
-    // TODO: Tell the UDP listener thread that it should be ready for the gate to open and the times to start rolling in.
-}
 
 void MainWindow::on_acceptButton_clicked()
 {
