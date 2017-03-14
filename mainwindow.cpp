@@ -18,6 +18,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // Set the app icon
+    setWindowIcon(QIcon(":/icons/alignLeft.png"));
+
     // Set up a std::array for each type of field for easy access by indexing later.
     racerNames  = {{ui->racerName1, ui->racerName2, ui->racerName3, ui->racerName4}};
     racerLanes  = {{ui->racerLane1, ui->racerLane2, ui->racerLane3, ui->racerLane4}};

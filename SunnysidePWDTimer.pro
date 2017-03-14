@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = SunnysidePWDTimer
 TEMPLATE = app
 
+macx:ICON = $${PWD}/icons/alignLeft.icns
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -29,3 +30,6 @@ FORMS    += mainwindow.ui \
     editcompetitorsdialog.ui \
     raceresultsdialog.ui \
     serialportdialog.ui
+
+RESOURCES += \
+    pwdtimer.qrc
