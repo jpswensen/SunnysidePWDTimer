@@ -257,7 +257,7 @@ void MainWindow::updateHeatsTable ()
     ui->heatsTableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->heatsTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-    font.setPointSize(24);
+    font.setPointSize(20);
     font.setBold(false);
     ui->heatsTableView->setFont(font);
 
