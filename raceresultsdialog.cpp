@@ -37,6 +37,8 @@ void RaceResultsDialog::sortByColumn(int column)
 void RaceResultsDialog::setTableFont (QFont& font)
 {
     ui->resultsTableView->setFont(font);
+
+    updateResultsTable();
 }
 
 void RaceResultsDialog::updateResultsTable ()
@@ -74,17 +76,27 @@ void RaceResultsDialog::updateResultsTable ()
 
 
         model->setData(model->index(i, 2), Qt::AlignHCenter, Qt::TextAlignmentRole);
+        model->setData(model->index(i, 2), Qt::AlignVCenter, Qt::TextAlignmentRole);
+
         model->setData(model->index(i, 3), Qt::AlignHCenter, Qt::TextAlignmentRole);
+        model->setData(model->index(i, 3), Qt::AlignVCenter, Qt::TextAlignmentRole);
+
         model->setData(model->index(i, 4), Qt::AlignHCenter, Qt::TextAlignmentRole);
+        model->setData(model->index(i, 4), Qt::AlignVCenter, Qt::TextAlignmentRole);
+
         model->setData(model->index(i, 5), Qt::AlignHCenter, Qt::TextAlignmentRole);
+        model->setData(model->index(i, 5), Qt::AlignVCenter, Qt::TextAlignmentRole);
+
         model->setData(model->index(i, 6), Qt::AlignHCenter, Qt::TextAlignmentRole);
+        model->setData(model->index(i, 6), Qt::AlignVCenter, Qt::TextAlignmentRole);
 
     }
     ui->resultsTableView->setModel(model);
 
 
-    ui->resultsTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->resultsTableView->resizeColumnsToContents();
     ui->resultsTableView->resizeRowsToContents();
+    ui->resultsTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 void RaceResultsDialog::on_printButton_clicked()

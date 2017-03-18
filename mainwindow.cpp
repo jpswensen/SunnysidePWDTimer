@@ -6,6 +6,7 @@
 #include <QDesktopWidget>
 #include <QFileDialog>
 #include <QFile>
+#include <QMessageBox>
 
 #include "editcompetitorsdialog.h"
 
@@ -249,14 +250,14 @@ void MainWindow::updateHeatsTable ()
     ui->heatsTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     QFont font = ui->competitorsButton->font();
-    font.setPointSize(48);
+    font.setPointSize(24);
     ui->heatsTableView->horizontalHeader()->setFont( font );
     ui->heatsTableView->verticalHeader()->setFont( font );
     ui->heatsTableView->setSelectionBehavior(QAbstractItemView::SelectColumns);
     ui->heatsTableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->heatsTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-    font.setPointSize(36);
+    font.setPointSize(24);
     font.setBold(false);
     ui->heatsTableView->setFont(font);
 
@@ -469,7 +470,7 @@ void MainWindow::on_resultsButton_clicked()
     font.setPointSize(24);
     m_rrd->setFont(font);
 
-    font.setPointSize(36);
+    font.setPointSize(24);
     font.setBold(false);
     m_rrd->setTableFont(font);
 
@@ -507,19 +508,30 @@ void MainWindow::acceptSerialPortDialog()
 
 void MainWindow::on_resetButton_clicked()
 {
-    // Send RESET to the microcontroller
-    if (m_serialPort)
-    {
-        m_serialPort->write("RESET");
-        m_serialPort->flush();
-        m_readData.clear();
-    }
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Rest", "Are you sure you want to reset?",
+                                    QMessageBox::Yes|QMessageBox::No);
+      if (reply == QMessageBox::Yes) {
+        // Send RESET to the microcontroller
+        if (m_serialPort)
+        {
+            m_serialPort->write("RESET");
+            m_serialPort->flush();
+            m_readData.clear();
+        }
 
-    for (int i = 0 ; i < 4 ; i++)
-    {
-        racerTimes[i]->setText("0.000");
-        racerFinish[i]->setText("-");
-    }
+        for (int i = 0 ; i < 4 ; i++)
+        {
+            racerTimes[i]->setText("0.000");
+            racerFinish[i]->setText("-");
+        }
+      } else {
+
+      }
+
+
+
+
 }
 
 
