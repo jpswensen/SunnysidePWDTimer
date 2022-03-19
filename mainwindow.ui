@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1784</width>
-    <height>826</height>
+    <width>1280</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,6 +17,9 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="1" column="0">
      <widget class="QFrame" name="frame">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
@@ -30,8 +33,8 @@
           <widget class="QLabel" name="racerLaneLabel">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -48,8 +51,8 @@
           <widget class="QLabel" name="racerLane2">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -66,8 +69,8 @@
           <widget class="QLabel" name="racerLane3">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -84,7 +87,8 @@
           <widget class="QLabel" name="racerName2">
            <property name="font">
             <font>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
             </font>
            </property>
            <property name="text">
@@ -96,8 +100,8 @@
           <widget class="QLabel" name="racerFinish1">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -114,8 +118,8 @@
           <widget class="QLabel" name="racerFinish2">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -132,8 +136,8 @@
           <widget class="QLabel" name="racerTime1">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -150,8 +154,8 @@
           <widget class="QLabel" name="racerLane4">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -168,8 +172,8 @@
           <widget class="QLabel" name="racerTime4">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -186,8 +190,8 @@
           <widget class="QLabel" name="racerNameLabel">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -201,8 +205,8 @@
           <widget class="QLabel" name="racerLane1">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -219,7 +223,8 @@
           <widget class="QLabel" name="racerName1">
            <property name="font">
             <font>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
             </font>
            </property>
            <property name="text">
@@ -231,8 +236,8 @@
           <widget class="QLabel" name="racerFinish3">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -249,8 +254,8 @@
           <widget class="QLabel" name="racerFinish4">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -267,8 +272,8 @@
           <widget class="QLabel" name="racerTime3">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -285,7 +290,8 @@
           <widget class="QLabel" name="racerName4">
            <property name="font">
             <font>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
             </font>
            </property>
            <property name="text">
@@ -297,14 +303,14 @@
           <widget class="QLabel" name="racerFinishLabel">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
            <property name="text">
-            <string>Position</string>
+            <string>Place</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -315,8 +321,8 @@
           <widget class="QLabel" name="racerTimeLabel">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -333,7 +339,8 @@
           <widget class="QLabel" name="racerName3">
            <property name="font">
             <font>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
             </font>
            </property>
            <property name="text">
@@ -345,8 +352,8 @@
           <widget class="QLabel" name="racerTime2">
            <property name="font">
             <font>
-             <family>Cambria</family>
-             <pointsize>64</pointsize>
+             <family>DejaVu Serif</family>
+             <pointsize>48</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -464,22 +471,6 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <spacer name="verticalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Expanding</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
          <widget class="QLabel" name="raceControlLabel">
           <property name="font">
            <font>
@@ -575,30 +566,6 @@
         </item>
         <item>
          <layout class="QGridLayout" name="gridLayout_6">
-          <item row="0" column="1">
-           <widget class="QLabel" name="stateLabel">
-            <property name="font">
-             <font>
-              <pointsize>24</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>On your marks</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
-            <property name="font">
-             <font>
-              <pointsize>24</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>State</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_3">
             <property name="text">
@@ -610,6 +577,18 @@
            <widget class="QLabel" name="connectionLabel">
             <property name="text">
              <string>Disconnected</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="stateLabel">
+            <property name="font">
+             <font>
+              <pointsize>24</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>
@@ -629,6 +608,11 @@
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>8</pointsize>
+       </font>
       </property>
       <property name="verticalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -651,7 +635,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1784</width>
+     <width>1280</width>
      <height>22</height>
     </rect>
    </property>

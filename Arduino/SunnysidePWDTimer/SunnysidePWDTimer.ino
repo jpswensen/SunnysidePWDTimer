@@ -37,6 +37,13 @@
 
 #define STARTGATE_PIN D7
 
+void IRAM_ATTR lane1Interrupt();
+void IRAM_ATTR lane2Interrupt();
+void IRAM_ATTR lane3Interrupt();
+void IRAM_ATTR lane4Interrupt();
+void IRAM_ATTR startGateInterrupt();
+
+
 /* Variables for maintaining the race information */
 typedef enum TimerStateEnum {
   UNDEFINED = 0,
@@ -47,8 +54,8 @@ typedef enum TimerStateEnum {
 } TimerState_t;
 
 TimerState_t state = RESET;
-long startTime = 0;
-long endTime[4] = {0, 0, 0, 0};
+volatile long startTime = 0;
+volatile long endTime[4] = {0, 0, 0, 0};
 
 void setup() {
   delay(1000);
@@ -200,6 +207,7 @@ void loop() {
 
       if (digitalRead(STARTGATE_PIN) == HIGH)
       {
+        Serial.println("GOING OT SET");
         state = SET;
       }
       else
@@ -222,7 +230,11 @@ void loop() {
       currentTime = std::max(std::max(std::max(endTime[0], endTime[1]),endTime[2]),endTime[3]);
       sendMessage(currentTime);
       break;
-    
+
+    case UNDEFINED:
+    case default:
+      Serial.println("UNDEFINED state");
+      break;
   }
 
   delay(50);
