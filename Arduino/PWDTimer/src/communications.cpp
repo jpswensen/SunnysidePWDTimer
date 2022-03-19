@@ -200,10 +200,22 @@ String receive_message(RecvMessage_t &type)
   {
     type = RESET_MSG;
   }
+  else if (retval.startsWith("LANES"))
+  {
+    type = SET_LANES_MSG;
+  }
 
   return retval;
 }
 
+int get_lanes_from_message(String message)
+{
+  int idxStart = message.indexOf(',')+1;
+  int idxEnd = message.indexOf('*');
+  String lanesStr = message.substring(idxStart,idxEnd);  
+  Serial.printf("idxstart:%d  idxend:%d  lanestr:%s\n",idxStart, idxEnd, lanesStr.c_str());
+  return lanesStr.toInt();
+}
 
 void processTCPserverConnections() 
 {

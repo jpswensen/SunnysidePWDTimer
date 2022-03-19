@@ -50,6 +50,13 @@ void loop() {
     state = RESET;
     reset_gates();
   }
+  else if (msgType == SET_LANES_MSG)
+  {
+    int lanes = get_lanes_from_message(inMsg);
+    
+    set_num_gates(lanes);
+    send_debug_message("Setting the lane count");
+  }
   
   // Handle the current state of the system
   switch (state) {
