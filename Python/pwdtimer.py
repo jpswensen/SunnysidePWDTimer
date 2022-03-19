@@ -9,7 +9,9 @@ import configparser
 from pathlib import Path
 import os
 
+from commdialog import *
 from pwdtimer_communications import *
+
 
 class PWDTimer(QtWidgets.QMainWindow):
 
@@ -26,6 +28,7 @@ class PWDTimer(QtWidgets.QMainWindow):
         self.actionHeats.triggered.connect(self.on_heat_tab)
         self.actionRace.triggered.connect(self.on_race_tab)
         
+        self.commsButton.clicked.connect(self.on_open_comms_button_press)
 
         # Connect the buttons back to the PyQT5 .ui file
         # self.loadConfigFileButton.clicked.connect(self.loadConfigFileButtonPress)
@@ -42,15 +45,19 @@ class PWDTimer(QtWidgets.QMainWindow):
         # self.useReboundGatesCheckBox = [self.useReboundGate1CheckBox,self.useReboundGate2CheckBox,self.useReboundGate3CheckBox,self.useReboundGate4CheckBox]
        
         self.client = PWDTimerClient()
-        self.client.connect('pwdtimer.local',8080) # this works because of the MDNS software running on the device
-        self.client.recv_flush()
-        self.client.reset_race()
+        # self.client.connect('pwdtimer.local',8080) # this works because of the MDNS software running on the device
+        # self.client.recv_flush()
+        # self.client.reset_race()
 
         # Initialize a timer for the communications with the timer electronics
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.monitorTimerThread)
         self.timer.start(25)            
     
+    def on_open_comms_button_press(self):
+        dialog = CommDialog(self.client)
+        dialog.exec_()
+
     def on_load_races(self):
         pass
     
@@ -68,9 +75,8 @@ class PWDTimer(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def monitorTimerThread(self):
-        print("Thread")
         mstr = self.client.recv_message()
-        if len(mstr) < 3:
+        if mstr == None or len(mstr) < 3:            
             return
         timestamp = time.time()
         msg = PWDTimerMessage(mstr)

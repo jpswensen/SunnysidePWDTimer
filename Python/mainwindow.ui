@@ -81,7 +81,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="serialButton">
+             <widget class="QPushButton" name="commsButton">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -671,9 +671,9 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionLoad_races"/>
-    <addaction name="actionSave_races"/>
-    <addaction name="actionSave_races_as"/>
+    <addaction name="actionLoad"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSaveAs"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -694,7 +694,7 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionLoad_races">
+  <action name="actionLoad">
    <property name="text">
     <string>Load races</string>
    </property>
@@ -702,7 +702,7 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionSave_races">
+  <action name="actionSave">
    <property name="text">
     <string>Save races</string>
    </property>
@@ -710,7 +710,7 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionSave_races_as">
+  <action name="actionSaveAs">
    <property name="text">
     <string>Save races as...</string>
    </property>
