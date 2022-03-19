@@ -15,8 +15,16 @@ class PWDTimerState:
     FINISHED    = 4
 
 class PWDTimerMessage:
+
+    state = PWDTimerState.UNDEFINED
+
     def __init__(self,msg_bytes):
-        msg_str = msg_bytes.decode('utf-8')
+        try:
+            msg_str = msg_bytes.decode('utf-8')
+        except:
+            print("Error parsing message")
+            return
+        
         idx = msg_str.find('*')
         fields = msg_str[1:idx].split(',')
 
