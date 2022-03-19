@@ -1,3 +1,4 @@
+from http.client import RESET_CONTENT
 import sys
 from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtWidgets import *
