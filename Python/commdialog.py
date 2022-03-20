@@ -4,12 +4,13 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sys import platform
 
+from resources import *
 from pwdtimer_communications import *
 
 class CommDialog(QDialog):
     def __init__(self, lanes, client, parent=None):
         QDialog.__init__(self, parent)
-        uic.loadUi("commdialog.ui",self)
+        uic.loadUi(resource_path('commdialog.ui'),self)
 
         self.lanes = lanes
         self.client = client

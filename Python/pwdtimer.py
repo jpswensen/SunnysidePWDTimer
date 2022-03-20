@@ -9,6 +9,7 @@ import configparser
 from pathlib import Path
 import os
 
+from resources import *
 from commdialog import *
 from editcompetitorsdialog import *
 from pwdtimer_communications import *
@@ -23,7 +24,8 @@ class PWDTimer(QtWidgets.QMainWindow):
 
     def __init__(self):
         super().__init__()
-        uic.loadUi("mainwindow.ui",self)
+
+        uic.loadUi(resource_path('mainwindow.ui'),self)
 
         # Set up the action handlers
         self.actionLoad.triggered.connect(self.on_load_races)
