@@ -7,11 +7,14 @@ from sys import platform
 from pwdtimer_communications import *
 
 class CommDialog(QDialog):
-    def __init__(self, client, parent=None):
+    def __init__(self, lanes, client, parent=None):
         QDialog.__init__(self, parent)
         uic.loadUi("commdialog.ui",self)
 
+        self.lanes = lanes
         self.client = client
+
+        self.laneCountLineEdit.setText(str(lanes))
 
         self.portList = QtSerialPort.QSerialPortInfo.availablePorts()        
         print(self.portList)
@@ -38,4 +41,6 @@ class CommDialog(QDialog):
         
         self.client.connect_serial(full_port_name)        
 
-
+    def get_lane_count(self):
+        lanes = int(self.laneCountLineEdit.text())
+        return lanes

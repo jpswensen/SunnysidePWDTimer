@@ -26,31 +26,38 @@
    </item>
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="1">
+     <item row="2" column="1">
       <widget class="QComboBox" name="portComboBox"/>
      </item>
-     <item row="3" column="0">
+     <item row="4" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
         <string>Host</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
+     <item row="5" column="0">
       <widget class="QLabel" name="label_4">
        <property name="text">
         <string>Port</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="2" column="0">
       <widget class="QLabel" name="serialRowLabel">
        <property name="text">
         <string>Serial Port</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
+     <item row="5" column="2">
+      <widget class="QPushButton" name="networkConnectButton">
+       <property name="text">
+        <string>Connect</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
       <widget class="QLabel" name="label">
        <property name="font">
         <font>
@@ -63,14 +70,21 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="2" column="2">
+      <widget class="QPushButton" name="serialConnectButton">
+       <property name="text">
+        <string>Connect</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
       <widget class="QLineEdit" name="hostLineEdit">
        <property name="text">
         <string>pwdtimer.local</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
       <widget class="QLabel" name="label_2">
        <property name="font">
         <font>
@@ -83,26 +97,28 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="5" column="1">
       <widget class="QLineEdit" name="portLineEdit">
        <property name="text">
         <string>8080</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="serialConnectButton">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="text">
-        <string>Connect</string>
+        <string>LANES</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="2">
-      <widget class="QPushButton" name="networkConnectButton">
-       <property name="text">
-        <string>Connect</string>
-       </property>
-      </widget>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="laneCountLineEdit"/>
      </item>
     </layout>
    </item>
