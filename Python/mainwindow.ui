@@ -18,9 +18,14 @@
     <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="tab_3">
+      <widget class="QWidget" name="groupsTab">
+       <attribute name="title">
+        <string>Groups</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="heatsTab">
        <attribute name="title">
         <string>Heats</string>
        </attribute>
@@ -306,7 +311,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_4">
+      <widget class="QWidget" name="raceTab">
        <attribute name="title">
         <string>Current Race</string>
        </attribute>
@@ -430,13 +435,18 @@
     <property name="title">
      <string>View</string>
     </property>
+    <addaction name="actionGroups"/>
     <addaction name="actionHeats"/>
     <addaction name="actionRace"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="mainToolBar">
+   <property name="movable">
+    <bool>false</bool>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -444,7 +454,6 @@
     <bool>false</bool>
    </attribute>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionLoad">
    <property name="text">
     <string>Load races</string>
@@ -474,7 +483,7 @@
     <string>Heats</string>
    </property>
    <property name="shortcut">
-    <string>Meta+1</string>
+    <string>Meta+2</string>
    </property>
   </action>
   <action name="actionRace">
@@ -482,7 +491,15 @@
     <string>Race</string>
    </property>
    <property name="shortcut">
-    <string>Meta+2</string>
+    <string>Meta+3</string>
+   </property>
+  </action>
+  <action name="actionGroups">
+   <property name="text">
+    <string>Groups</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+1</string>
    </property>
   </action>
  </widget>

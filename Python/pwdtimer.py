@@ -27,10 +27,19 @@ class PWDTimer(QtWidgets.QMainWindow):
 
         uic.loadUi(resource_path('mainwindow.ui'),self)
 
+        toolButton = QToolButton()
+        toolButton.setText("Apple")
+        toolButton.setCheckable(True)
+        toolButton.setAutoExclusive(True)
+        toolButton.setIcon(QIcon(resource_path("icon1.png")))
+        self.mainToolBar.addWidget(toolButton)
+
         # Set up the action handlers
         self.actionLoad.triggered.connect(self.on_load_races)
         self.actionSave.triggered.connect(self.on_save_races)
         self.actionSaveAs.triggered.connect(self.on_save_races_as)
+
+        self.actionGroups.triggered.connect(self.on_groups_tab)
         self.actionHeats.triggered.connect(self.on_heat_tab)
         self.actionRace.triggered.connect(self.on_race_tab)
         
@@ -159,11 +168,14 @@ class PWDTimer(QtWidgets.QMainWindow):
             self.filename = filename[0]
             self.on_save_races()
 
-    def on_heat_tab(self):
+    def on_groups_tab(self):
         self.tabWidget.setCurrentIndex(0)
 
-    def on_race_tab(self): 
+    def on_heat_tab(self):
         self.tabWidget.setCurrentIndex(1)
+
+    def on_race_tab(self): 
+        self.tabWidget.setCurrentIndex(2)
 
     def update_heats_table(self):
         model = QStandardItemModel(self.num_lanes, len(self.participants) )
