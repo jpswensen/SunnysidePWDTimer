@@ -14,18 +14,21 @@ from commdialog import *
 from editcompetitorsdialog import *
 from pwdtimer_communications import *
 
+from racefiles import *
 
 class PWDTimer(QtWidgets.QMainWindow):
-
     connected = False
     num_lanes = 8
     participants = []
     filename = None
+    racedata = None
 
     def __init__(self):
         super().__init__()
 
         uic.loadUi(resource_path('mainwindow.ui'),self)
+
+        self.racedata = RaceData()
 
         toolButton = QToolButton()
         toolButton.setText("Apple")
@@ -35,18 +38,25 @@ class PWDTimer(QtWidgets.QMainWindow):
         self.mainToolBar.addWidget(toolButton)
 
         # Set up the action handlers
-        self.actionLoad.triggered.connect(self.on_load_races)
-        self.actionSave.triggered.connect(self.on_save_races)
-        self.actionSaveAs.triggered.connect(self.on_save_races_as)
-
-        self.actionGroups.triggered.connect(self.on_groups_tab)
-        self.actionHeats.triggered.connect(self.on_heat_tab)
-        self.actionRace.triggered.connect(self.on_race_tab)
-        
         self.commsButton.clicked.connect(self.on_open_comms_button_press)
         self.competitorsButton.clicked.connect(self.on_open_competitors_button_press)
        
         self.create_race_table_view()
+
+        groupsModel = QStandardItemModel()
+        groupsModel.setHorizontalHeaderItem(0, QStandardItem("Group Name"))
+        groupsModel.dataChanged.connect(self.on_groups_changed)
+        self.groupsTreeView.setModel(groupsModel)
+
+
+        self.groupsTreeView.setSelectionModel(QItemSelectionModel())
+        self.groupsTreeView.selectionModel().selectionChanged.connect(self.on_group_selection_changed)
+
+        racersModel = QStandardItemModel(0,3,self)
+        racersModel.setHorizontalHeaderItem(0, QStandardItem("Name"))
+        racersModel.setHorizontalHeaderItem(1, QStandardItem("Car Name"))
+        racersModel.setHorizontalHeaderItem(2, QStandardItem("Number"))
+        self.racersTableView.setModel(racersModel)
 
         self.client = PWDTimerClient()
 
@@ -56,6 +66,15 @@ class PWDTimer(QtWidgets.QMainWindow):
         self.timer.start(25)      
 
         self.update_heats_table()
+
+    def on_groups_changed(self, tleft, bright, roles):
+        row = tleft.row()
+        col = tleft.column()
+
+        model = self.groupsTreeView.model()
+        name = model.data(model.index(row,0))
+        self.racedata.groups[row].name = name
+        
 
     def create_race_table_view(self):
         # Create the header row
@@ -100,6 +119,109 @@ class PWDTimer(QtWidgets.QMainWindow):
         font.setBold(False)
         self.raceTableView.setFont(font)
 
+    def add_group(self):
+        groupsModel = self.groupsTreeView.model()
+        item = QStandardItem("<new group>")
+        groupsModel.appendRow(item)
+
+        self.racedata.groups.append(Group('<new group>'))
+
+    def remove_group(self):
+        
+        # Get the current index
+        index = self.groupsTreeView.currentIndex()
+        if index.row() == -1:
+            return
+
+        # Dialog to ask them if they really, really want to delete a group
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText("Are you sure you really want to delete a whole group?")
+        msg.setWindowTitle("Remove Group")
+        msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        retval = msg.exec_()
+        if retval == QMessageBox.StandardButton.Yes:
+            
+            # Delete from the treeview
+            groupsModel = self.groupsTreeView.model()
+            groupsModel.removeRow(index.row())
+
+            # Delete from the racedata
+            self.racedata.groups.pop(index.row())
+
+            # Go back to the first group (if there is one)
+            index = groupsModel.index(0,0)
+            if index.row() == -1:
+                # If the last group was removed, clear the racers table
+                racersModel = self.racersTableView.model()
+                racersModel.removeRows(0, racersModel.rowCount())
+            else:
+                self.groupsTreeView.setCurrentIndex(index)
+
+    def add_racer(self):
+
+        # If a group isn't selected, don't let them add a racer
+        index = self.groupsTreeView.currentIndex()
+        if index.row() == -1:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("You must have a group selected to add a racer")
+            msg.setWindowTitle("Add Racer Error")
+            msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+            retval = msg.exec_()
+            return
+
+        # Find the last row number and add a new row
+        racersModel = self.racersTableView.model()
+        rowPosition = racersModel.rowCount()
+        racersModel.insertRow(rowPosition)
+
+        # Populate the row with placeholder data
+        racersModel.setData(racersModel.index(rowPosition,0), '<racer name>')
+        racersModel.setData(racersModel.index(rowPosition,1), '<car name>')
+        racersModel.setData(racersModel.index(rowPosition,2), '<car number>')
+
+        # Need to add a new racer
+        self.racedata.groups[index.row()].add_racer( Racer('<racer name>', '<car name>', '<car number>', []))
+
+    def remove_racer(self):
+        pass
+        
+        index = self.groupsTreeView.currentIndex()
+        groupRow = index.row()
+        if groupRow == -1:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("You must have a group selected to remove a racer")
+            msg.setWindowTitle("Remove Racer Error")
+            msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+            retval = msg.exec_()
+            return
+
+        index = self.racersTableView.currentIndex()
+        racerRow = index.row()
+        if racerRow == -1:
+            return
+
+        # Delete from the treeview
+        racersModel = self.racersTableView.model()
+        racersModel.removeRow(racerRow)
+
+        # Delete from the racedata
+        self.racedata.groups[groupRow].racers.pop(racerRow)
+
+        # # Go back to the first group (if there is one)
+        # index = groupsModel.index(0,0)
+        # if index.row() == -1:
+        #     # If the last group was removed, clear the racers table
+        #     racersModel = self.racersTableView.model()
+        #     racersModel.removeRows(0, racersModel.rowCount())
+        # else:
+        #     self.groupsTreeView.setCurrentIndex(index)
+
+    
+
+
 
     def on_open_competitors_button_press(self):
         dialog = EditCompetitorsDialog(self.participants)
@@ -124,29 +246,64 @@ class PWDTimer(QtWidgets.QMainWindow):
             
 
     def on_load_races(self):
-        filename = QFileDialog.getOpenFileName(self,"Open race data", ".", "CSV (*.csv)")
-        if filename != "":
-            self.participants = []
-            self.filename = filename[0]
-            file = QFile(self.filename)
-            if not file.open(QIODevice.ReadOnly):
-                print(f"Error opening file with error: {file.errorString()}")
-                return
+        # filename = QFileDialog.getOpenFileName(self,"Open race data", ".", "CSV (*.csv)")
+        filename = QFileDialog.getOpenFileName(self,"Open race data", ".", "JSON (*.json)")
 
-            I = 1
-            while not file.atEnd():
-                line = file.readLine()
-                line_list = line.split(',')
-                participant = line_list[0].data().decode('utf-8')
-                car_name = line_list[1].data().decode('utf-8')
-                race_times = [float(x.data().decode('utf-8')) for x in line_list[2:2+self.num_lanes]]
+        self.participants = []
+        self.filename = filename[0]
+        if self.filename != '':
+            self.racedata = RaceData(self.filename)
+            self.update_groups_and_racers()
 
-                p = ParticipantInfo(participant, car_name, I, race_times)
-                self.participants.append(p)
-            file.close()
+            # file = QFile(self.filename)
+            # if not file.open(QIODevice.ReadOnly):
+            #     print(f"Error opening file with error: {file.errorString()}")
+            #     return
 
-            self.update_heats_table()
+            # I = 1
+            # while not file.atEnd():
+            #     line = file.readLine()
+            #     line_list = line.split(',')
+            #     participant = line_list[0].data().decode('utf-8')
+            #     car_name = line_list[1].data().decode('utf-8')
+            #     race_times = [float(x.data().decode('utf-8')) for x in line_list[2:2+self.num_lanes]]
+
+            #     p = ParticipantInfo(participant, car_name, I, race_times)
+            #     self.participants.append(p)
+            # file.close()
+
+            # self.update_heats_table()
     
+    def update_groups_and_racers(self):
+        pass
+        groupsModel = self.groupsTreeView.model()
+        groupsModel.removeRows(0, groupsModel.rowCount())
+
+        for group in self.racedata.groups:
+            item = QStandardItem(group.name)
+            groupsModel.appendRow(item)
+
+        # Select the first item in the treeview (should trigger and update signal for loading the racers)
+        index = groupsModel.index(0,0)
+        self.groupsTreeView.setCurrentIndex(index)
+        # for racers in self.racedata.groups[0].racers:
+        #     print(racers)
+
+    def on_group_selection_changed(self, selected, deselected):
+        if selected.indexes():
+            racersModel = self.racersTableView.model()
+            racersModel.removeRows(0, racersModel.rowCount())
+            
+            row = selected.indexes()[ 0 ].row()
+            newModel = QStandardItemModel(len(self.racedata.groups[row].racers),3,self)
+            for K,racer in enumerate(self.racedata.groups[row].racers):                
+                newModel.setData(newModel.index(K,0), racer.name)
+                newModel.setData(newModel.index(K,1), racer.car_name)   
+                newModel.setData(newModel.index(K,2), racer.car_number)   
+            self.racersTableView.setModel(newModel)     
+                # print(racers.name)
+
+
     def on_save_races(self):
         if self.filename == None :
             self.on_save_races_as()
