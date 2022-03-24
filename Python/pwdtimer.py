@@ -1,4 +1,5 @@
 from http.client import RESET_CONTENT
+from json import tool
 import sys
 from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtWidgets import *
@@ -18,7 +19,7 @@ from racefiles import *
 
 class PWDTimer(QtWidgets.QMainWindow):
     connected = False
-    num_lanes = 8
+    num_lanes = 4
     participants = []
     filename = None
     racedata = None
@@ -35,21 +36,27 @@ class PWDTimer(QtWidgets.QMainWindow):
         toolButton.setCheckable(True)
         toolButton.setAutoExclusive(True)
         toolButton.setIcon(QIcon(resource_path("icon1.png")))
+        toolButton.clicked.connect(self.on_open_comms_button_press)
         self.mainToolBar.addWidget(toolButton)
 
+
         # Set up the action handlers
-        self.commsButton.clicked.connect(self.on_open_comms_button_press)
-        self.competitorsButton.clicked.connect(self.on_open_competitors_button_press)
+        # self.commsButton.clicked.connect(self.on_open_comms_button_press)
+        # self.competitorsButton.clicked.connect(self.on_open_competitors_button_press)
        
         self.create_race_table_view()
 
         groupsModel = QStandardItemModel()
-        groupsModel.setHorizontalHeaderItem(0, QStandardItem("Group Name"))
+        groupsModel.setHorizontalHeaderItem(0, QStandardItem("Group"))
         groupsModel.dataChanged.connect(self.on_groups_changed)
+        
         self.groupsTreeView.setModel(groupsModel)
-
         self.groupsTreeView.setSelectionModel(QItemSelectionModel())
         self.groupsTreeView.selectionModel().selectionChanged.connect(self.on_group_selection_changed)
+
+        self.heatsGroupTreeView.setModel(groupsModel)
+        self.heatsGroupTreeView.setSelectionModel(QItemSelectionModel())
+        self.heatsGroupTreeView.selectionModel().selectionChanged.connect(self.on_heat_group_selection_changed)
 
         racersModel = QStandardItemModel(0,3,self)
         racersModel.setHorizontalHeaderItem(0, QStandardItem("Name"))
@@ -58,6 +65,8 @@ class PWDTimer(QtWidgets.QMainWindow):
         racersModel.dataChanged.connect(self.on_racers_changed)
         self.racersTableView.setModel(racersModel)
 
+        self.create_heats_table()
+
         self.client = PWDTimerClient()
 
         # Initialize a timer for the communications with the timer electronics
@@ -65,7 +74,42 @@ class PWDTimer(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.monitorTimerThread)
         self.timer.start(25)      
 
-        self.update_heats_table()
+        
+
+    def on_load_races(self):
+        
+        filename = QFileDialog.getOpenFileName(self,"Open race data", ".", "JSON (*.json)")
+
+        self.participants = []
+        self.filename = filename[0]
+        if self.filename != '':
+            self.racedata = RaceData(self.filename)
+            self.update_groups_and_racers()
+    
+    def on_import_from_csv(self):
+        filename = QFileDialog.getOpenFileName(self,"Open race data", ".", "CSV (*.csv)")
+        csv_filename = filename[0]
+        if csv_filename != '':
+            self.racedata = RaceData()
+            self.racedata.import_from_csv(csv_filename)
+            self.update_groups_and_racers()
+
+    def on_save_races(self):
+
+        if self.filename == None :
+            self.on_save_races_as()
+        else:
+            json_dict = self.racedata.dict()
+            
+            with open(self.filename, 'w') as outfile:              
+                json.dump(json_dict, outfile, indent=4, sort_keys=True)
+
+    def on_save_races_as(self):
+        filename = QFileDialog.getSaveFileName(self, "Save race data as...", ".", "JSON (*.json)")
+        if filename != "":
+            self.filename = filename[0]
+            self.on_save_races()
+
 
     def on_groups_changed(self, tleft, bright, roles):
         row = tleft.row()
@@ -94,7 +138,9 @@ class PWDTimer(QtWidgets.QMainWindow):
         self.racedata.groups[groups_row].racers[racer_row].name = name
         self.racedata.groups[groups_row].racers[racer_row].car_name = car_name
         self.racedata.groups[groups_row].racers[racer_row].car_number = car_number        
-
+    
+    
+    
     def create_race_table_view(self):
         # Create the header row
         model = QStandardItemModel(self.num_lanes,4,self.raceTableView)
@@ -118,7 +164,7 @@ class PWDTimer(QtWidgets.QMainWindow):
             model.setData(model.index(I,3), "-")
 
         # Do some font sizing magic
-        font = self.competitorsButton.font()
+        font = QApplication.font()
         font.setPointSize(30)
         self.raceTableView.horizontalHeader().setFont(font)
         self.raceTableView.verticalHeader().setFont(font)
@@ -256,19 +302,8 @@ class PWDTimer(QtWidgets.QMainWindow):
             self.create_race_table_view()
             self.update_heats_table()
             
-
-    def on_load_races(self):
-        # filename = QFileDialog.getOpenFileName(self,"Open race data", ".", "CSV (*.csv)")
-        filename = QFileDialog.getOpenFileName(self,"Open race data", ".", "JSON (*.json)")
-
-        self.participants = []
-        self.filename = filename[0]
-        if self.filename != '':
-            self.racedata = RaceData(self.filename)
-            self.update_groups_and_racers()
-    
     def update_groups_and_racers(self):
-        pass
+        
         groupsModel = self.groupsTreeView.model()
         groupsModel.removeRows(0, groupsModel.rowCount())
 
@@ -279,6 +314,8 @@ class PWDTimer(QtWidgets.QMainWindow):
         # Select the first item in the treeview (should trigger and update signal for loading the racers)
         index = groupsModel.index(0,0)
         self.groupsTreeView.setCurrentIndex(index)
+        self.heatsGroupTreeView.setCurrentIndex(index)
+
 
     def on_group_selection_changed(self, selected, deselected):
         if selected.indexes():
@@ -294,21 +331,28 @@ class PWDTimer(QtWidgets.QMainWindow):
             newModel.dataChanged.connect(self.on_racers_changed)
             self.racersTableView.setModel(newModel)     
 
-    def on_save_races(self):
+    def on_heat_group_selection_changed(self, selected, deselected):
+        if selected.indexes():
+            heatsModel = self.heatsTableView.model()
+            heatsModel.removeRows(0, heatsModel.rowCount())
 
-        if self.filename == None :
-            self.on_save_races_as()
-        else:
-            json_dict = self.racedata.dict()
-            
-            with open(self.filename, 'w') as outfile:              
-                json.dump(json_dict, outfile, indent=4, sort_keys=True)
+            row = selected.indexes()[ 0 ].row()
+            newModel = QStandardItemModel(self.num_lanes,len(self.racedata.groups[row].racers),self)
+            for I in range(self.num_lanes):
+                newModel.setVerticalHeaderItem(I, QStandardItem(f"Lane {I+1}"))
 
-    def on_save_races_as(self):
-        filename = QFileDialog.getSaveFileName(self, "Save race data as...", ".", "JSON (*.json)")
-        if filename != "":
-            self.filename = filename[0]
-            self.on_save_races()
+            racers = self.racedata.groups[row].racers
+            for I,racer in enumerate(racers):                
+                for J in range(self.num_lanes):
+                    col = (I+J)%len(racers)
+                    newModel.setData(newModel.index(J,col), racer.name)
+
+                    if len(racer.times) > 0 and racer.times[J] != 0:
+                        row, col = self.participantLaneToRowCol(I, J)
+                        # model.setData(model.index(row,col), QVariant(QColor(Qt.red)), Qt.DecorationRole)
+                        newModel.setData(newModel.index(row,col), QVariant(self.style().standardIcon(QStyle.SP_DialogApplyButton)), Qt.DecorationRole)
+                        
+            self.heatsTableView.setModel(newModel)
 
     def on_groups_tab(self):
         self.tabWidget.setCurrentIndex(0)
@@ -319,25 +363,25 @@ class PWDTimer(QtWidgets.QMainWindow):
     def on_race_tab(self): 
         self.tabWidget.setCurrentIndex(2)
 
-    def update_heats_table(self):
+    def create_heats_table(self):
         model = QStandardItemModel(self.num_lanes, len(self.participants) )
         for I in range(self.num_lanes):
             model.setVerticalHeaderItem(I, QStandardItem(f"Lane {I+1}"))
 
-        for I, part in enumerate(self.participants):
-            for J in range(self.num_lanes):
-                col = (I+J)%len(self.participants)
-                model.setData(model.index(J,col), part.participantName)
+        # for I, part in enumerate(self.participants):
+        #     for J in range(self.num_lanes):
+        #         col = (I+J)%len(self.participants)
+        #         model.setData(model.index(J,col), part.participantName)
 
-                if part.raceTimes[J] != 0:
-                    row, col = self.participantLaneToRowCol(I, J)
-                    # model.setData(model.index(row,col), QVariant(QColor(Qt.red)), Qt.DecorationRole)
-                    model.setData(model.index(row,col), QVariant(self.style().standardIcon(QStyle.SP_DialogApplyButton)), Qt.DecorationRole)
+        #         if part.raceTimes[J] != 0:
+        #             row, col = self.participantLaneToRowCol(I, J)
+        #             # model.setData(model.index(row,col), QVariant(QColor(Qt.red)), Qt.DecorationRole)
+        #             model.setData(model.index(row,col), QVariant(self.style().standardIcon(QStyle.SP_DialogApplyButton)), Qt.DecorationRole)
                     
         self.heatsTableView.setModel(model)
 
         self.heatsTableView.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        font = self.competitorsButton.font()
+        font = QApplication.font() # self.competitorsButton.font()
         font.setPointSize(24)
         self.heatsTableView.horizontalHeader().setFont(font)
         self.heatsTableView.verticalHeader().setFont(font)
@@ -359,11 +403,13 @@ class PWDTimer(QtWidgets.QMainWindow):
 
     def participantLaneToRowCol(self, participant, lane):
 
-        idx1 = participant + lane*(len(self.participants)+1)
-        idx2 = participant + lane*(len(self.participants))
+        racers = self.racedata.groups[row].racers
 
-        col = idx1 % len(self.participants)
-        row = int(idx2 / len(self.participants))
+        idx1 = participant + lane*(len(racers)+1)
+        idx2 = participant + lane*(len(racers))
+
+        col = idx1 % len(racers)
+        row = int(idx2 / len(racers))
 
         return col,row
 
@@ -430,6 +476,7 @@ class PWDTimer(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     app.setApplicationName("PWDTimer")
+    app.setStyle(QStyleFactory.create("Fusion"))
 
     window = PWDTimer()
     window.show()

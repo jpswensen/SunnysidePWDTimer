@@ -2,6 +2,7 @@ import sys
 import os
 import dotmap
 import json
+import csv
 
 # The structure of the data file 
 # { groups: [ {
@@ -85,6 +86,23 @@ class RaceData:
 
                 #self.groups = data.groups
                 print(self.groups)
+
+    def import_from_csv(self,csv_filename):
+        with open(csv_filename, newline='\n') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            group_name = ''
+            group = None
+            for row in reader:
+                if row[0] != group_name:
+                    if group != None:
+                        self.groups.append(group)
+                    group_name = row[0]
+                    group = Group(group_name)
+
+                racer = Racer(row[1],row[2],row[3],[])
+                group.add_racer(racer)
+            if group != None:
+                self.groups.append(group)
 
     def dict(self):
         result = []
