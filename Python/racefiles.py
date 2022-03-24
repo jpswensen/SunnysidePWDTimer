@@ -34,6 +34,15 @@ class Racer:
     def set_times(self, times):
         self.times = times
 
+    def dict(self):
+        result = {}
+        result['name'] = self.name
+        result['car_name'] = self.car_name
+        result['car_number'] = self.car_number
+        result['times'] = self.times
+        
+        return result
+
 class Group:
     name = ''
     racers = []
@@ -47,6 +56,13 @@ class Group:
 
     def remove_racer(self,racer_name):
         pass
+
+    def dict(self):
+        result = []
+        for racer in self.racers:
+            result.append(racer.dict())
+        
+        return {"name":self.name, "racers":result}
 
 class RaceData:
     filename = None
@@ -69,6 +85,14 @@ class RaceData:
 
                 #self.groups = data.groups
                 print(self.groups)
+
+    def dict(self):
+        result = []
+        for group in self.groups:
+            result.append(group.dict())
+        
+        return {"groups":result}
+
 
 
 
