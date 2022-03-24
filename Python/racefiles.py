@@ -67,6 +67,7 @@ class Group:
 
 class RaceData:
     filename = None
+    num_lanes = 0
     groups = []
 
     def __init__(self, filename = None) -> None:
@@ -77,6 +78,7 @@ class RaceData:
                 data_json = json.load(json_file)
                 data = dotmap.DotMap(data_json)
 
+                self.num_lanes = int(data.num_lanes)
                 for group in data.groups:                
                     g = Group(group.name)
                     for racer in group.racers:
@@ -109,7 +111,7 @@ class RaceData:
         for group in self.groups:
             result.append(group.dict())
         
-        return {"groups":result}
+        return {"num_lanes":self.num_lanes,"groups":result}
 
 
 

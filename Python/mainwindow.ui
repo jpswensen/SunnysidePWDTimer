@@ -18,175 +18,17 @@
     <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
-      <widget class="QWidget" name="groupsTab">
+      <widget class="RaceGroupsWidget" name="raceGroupsWidget">
        <attribute name="title">
         <string>Groups</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="2">
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QToolButton" name="addRacerButton">
-            <property name="text">
-             <string>...</string>
-            </property>
-            <property name="icon">
-             <iconset>
-              <normalon>plus-24.png</normalon>
-             </iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="removeRacerButton">
-            <property name="text">
-             <string>...</string>
-            </property>
-            <property name="icon">
-             <iconset>
-              <normalon>minus-24.png</normalon>
-             </iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item row="1" column="2">
-         <widget class="QTableView" name="racersTableView">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <property name="spacing">
-           <number>-1</number>
-          </property>
-          <property name="sizeConstraint">
-           <enum>QLayout::SetMinimumSize</enum>
-          </property>
-          <item>
-           <widget class="QToolButton" name="addGroupButton">
-            <property name="text">
-             <string>...</string>
-            </property>
-            <property name="icon">
-             <iconset>
-              <normalon>plus-24.png</normalon>
-             </iconset>
-            </property>
-            <property name="autoRaise">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="removeGroupButton">
-            <property name="text">
-             <string>...</string>
-            </property>
-            <property name="icon">
-             <iconset>
-              <normalon>minus-24.png</normalon>
-             </iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item row="1" column="1">
-         <widget class="QTreeView" name="groupsTreeView"/>
-        </item>
-       </layout>
       </widget>
-      <widget class="QWidget" name="heatsTab">
+      <widget class="RaceHeatsWidget" name="raceHeatsWidget">
        <attribute name="title">
         <string>Heats</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_5">
-        <item row="0" column="1">
-         <layout class="QGridLayout" name="gridLayout_4">
-          <item row="0" column="0">
-           <widget class="QTreeView" name="heatsGroupTreeView">
-            <property name="maximumSize">
-             <size>
-              <width>200</width>
-              <height>16777215</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QTableView" name="heatsTableView">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-              <horstretch>1</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>300</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>8</pointsize>
-             </font>
-            </property>
-            <property name="verticalScrollBarPolicy">
-             <enum>Qt::ScrollBarAlwaysOff</enum>
-            </property>
-            <property name="showGrid">
-             <bool>true</bool>
-            </property>
-            <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
-            </attribute>
-            <attribute name="verticalHeaderHighlightSections">
-             <bool>false</bool>
-            </attribute>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
       </widget>
       <widget class="QWidget" name="raceTab">
        <attribute name="title">
@@ -201,10 +43,10 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
-             <widget class="QLabel" name="label">
+             <widget class="QLabel" name="statusLabel">
               <property name="minimumSize">
                <size>
-                <width>500</width>
+                <width>600</width>
                 <height>0</height>
                </size>
               </property>
@@ -214,7 +56,7 @@
                </font>
               </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string>Status</string>
               </property>
              </widget>
             </item>
@@ -390,24 +232,22 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>RaceGroupsWidget</class>
+   <extends>QWidget</extends>
+   <header>race_groups_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>RaceHeatsWidget</class>
+   <extends>QWidget</extends>
+   <header>race_heats_widget</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
-  <connection>
-   <sender>addGroupButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>add_group()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>48</x>
-     <y>94</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>511</x>
-     <y>383</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>actionLoad</sender>
    <signal>triggered()</signal>
@@ -497,54 +337,6 @@
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>511</x>
-     <y>383</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>removeGroupButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>remove_group()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>82</x>
-     <y>94</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>511</x>
-     <y>383</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>addRacerButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>add_racer()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>314</x>
-     <y>94</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>511</x>
-     <y>383</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>removeRacerButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>remove_racer()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>348</x>
-     <y>94</y>
     </hint>
     <hint type="destinationlabel">
      <x>511</x>

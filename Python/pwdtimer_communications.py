@@ -31,9 +31,9 @@ class PWDTimerMessage:
         self.state = int(fields[0])
         self.start_time = int(fields[1])
         self.curr_time = int(fields[2])
-        self.num_lanes = int(fields[3])
+        self.racedata.num_lanes = int(fields[3])
         self.end_times = []
-        for I in range(self.num_lanes):
+        for I in range(self.racedata.num_lanes):
             self.end_times.append(int(fields[4+I]))
         
     def get_state(self):
@@ -41,7 +41,7 @@ class PWDTimerMessage:
 
     def get_lane_times(self):
         end_times_seconds = []
-        for I in range(self.num_lanes):
+        for I in range(self.racedata.num_lanes):
             etsec = 0
             if self.end_times[I] == 0:
                 etsec = (self.curr_time - self.start_time)/1E6    
