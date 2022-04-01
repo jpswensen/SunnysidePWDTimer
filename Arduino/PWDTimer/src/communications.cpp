@@ -9,9 +9,9 @@
 //#include <ESPAsyncWebserver.h>
 #include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager WiFi Configuration Magic
 
-const int  WIFI_MODE_PIN = 0;
+const int  WIFI_MODE_PIN = 21;
 
-//#define ALWAYS_AP
+#define ALWAYS_AP
 #ifndef ALWAYS_AP
 WiFiManager wifiManager;
 #endif
@@ -23,6 +23,7 @@ void configModeCallback (WiFiManager *myESP_WiFiManager)
 }
 
 static int communicationsTaskCore = 0;
+static int networkInitTaskCore = 0;
 static int COMMUNICATION_TASK_PRIO = 5;
 static long COMMUNICATION_TASK_PERIOD = 50;
 
@@ -30,6 +31,7 @@ static long COMMUNICATION_TASK_PERIOD = 50;
 #define TCP_PORT        8080
 const char *ssid = "PWDTIMER";
 const char *password = "PWDTIMER";
+bool networkingInitialized = false;
 WiFiServer server(TCP_PORT);
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 
@@ -40,11 +42,9 @@ QueueHandle_t xQueueRecvMessages;
 
 void processTCPserverConnections();
 
-void communicationsCoreTask( void * pvParameters ){
-  // Setup serial communications
-  Serial.begin(115200);
+void networkInitCoreTask( void * pvParameters ){
 
-  // Setup TCP communications
+   // Setup TCP communications
 #ifdef ALWAYS_AP
   send_debug_message("Setting up soft-AP...");
   boolean result = WiFi.softAP(ssid, password);
@@ -94,58 +94,77 @@ void communicationsCoreTask( void * pvParameters ){
   server.begin();
   server.setNoDelay(true); 
 
+  networkingInitialized = true;
+
+  while(1) 
+  {
+    delay(1000);
+    taskYIELD();
+  }
+}
+
+void communicationsCoreTask( void * pvParameters ){
+  // Setup serial communications
+  Serial.begin(115200);
+
   // Spin here
   long lastTime = millis();
   while(1)
   {
-      long currTime = millis();
-      if ( (currTime-lastTime) > COMMUNICATION_TASK_PERIOD)
-      {
-          processTCPserverConnections();
-
-          ///////////////////////////////////////////////////////////////
-          // Send out queued messages
-          ///////////////////////////////////////////////////////////////
-          // Check the send queue and send them all out
-          std::string *pStr = NULL;
-          while ( xQueueReceive(xQueueSendMessages, &pStr, (TickType_t)0) == pdPASS)
-          {
-              // Send over serial                
-              Serial.println(pStr->c_str());
-
-              // Send the message over TCP (if connected)
-              if (serverClients[0] && serverClients[0].connected()){
-                  serverClients[0].println(pStr->c_str());
-              }
-
-              // Make sure to clean up the memory
-              delete pStr;
-          }
-
-          ///////////////////////////////////////////////////////////////
-          // Read in pending messages
-          ///////////////////////////////////////////////////////////////
-          if (Serial.available() > 0)
-          {
-            String message = Serial.readStringUntil('\n');            
-            std::string *pStr = new std::string(message.c_str());
-            xQueueSend( xQueueRecvMessages, &pStr, 0);
-          }
-
-          if (serverClients[0] && 
-              serverClients[0].connected() &&
-              serverClients[0].available()) {
-            String message = serverClients[0].readStringUntil('\n');
-            send_debug_message(message);            
-            std::string *pStr = new std::string(message.c_str());
-            xQueueSend( xQueueRecvMessages, &pStr, 0);
-          }
-
-
-          lastTime = currTime;
-          delay(10);
-          taskYIELD();
+    long currTime = millis();
+    if ( (currTime-lastTime) > COMMUNICATION_TASK_PERIOD)
+    {
+      
+      if (networkingInitialized) {
+        processTCPserverConnections();
       }
+
+      ///////////////////////////////////////////////////////////////
+      // Send out queued messages
+      ///////////////////////////////////////////////////////////////
+      // Check the send queue and send them all out
+      std::string *pStr = NULL;
+      while ( xQueueReceive(xQueueSendMessages, &pStr, (TickType_t)0) == pdPASS)
+      {
+          // Send over serial                
+          Serial.println(pStr->c_str());
+
+          if (networkingInitialized) {
+            // Send the message over TCP (if connected)
+            if (serverClients[0] && serverClients[0].connected()){
+                serverClients[0].println(pStr->c_str());
+            }
+          }
+
+          // Make sure to clean up the memory
+          delete pStr;
+      }
+
+      ///////////////////////////////////////////////////////////////
+      // Read in pending messages
+      ///////////////////////////////////////////////////////////////
+      if (Serial.available() > 0)
+      {
+        String message = Serial.readStringUntil('\n');            
+        std::string *pStr = new std::string(message.c_str());
+        xQueueSend( xQueueRecvMessages, &pStr, 0);
+      }
+
+      if (networkingInitialized) {
+        if (serverClients[0] && 
+            serverClients[0].connected() &&
+            serverClients[0].available()) {
+          String message = serverClients[0].readStringUntil('\n');
+          send_debug_message(message);            
+          std::string *pStr = new std::string(message.c_str());
+          xQueueSend( xQueueRecvMessages, &pStr, 0);
+        }
+      }
+
+      lastTime = currTime;
+      delay(10);
+      taskYIELD();
+    }
   }
 }
 
@@ -156,6 +175,15 @@ void setup_communications(void)
 
   xQueueSendMessages = xQueueCreate(QUEUE_SIZE, sizeof(std::string *));
   xQueueRecvMessages = xQueueCreate(QUEUE_SIZE, sizeof(std::string *));
+
+  xTaskCreatePinnedToCore(
+                  networkInitCoreTask,   /* Function to implement the task */
+                  "networkInitCoreTask", /* Name of the task */
+                  10000,      /* Stack size in words */
+                  NULL,       /* Task input parameter */
+                  COMMUNICATION_TASK_PRIO,          /* Priority of the task */
+                  NULL,       /* Task handle. */
+                  networkInitTaskCore);  /* Core where the task should run */
 
   xTaskCreatePinnedToCore(
                   communicationsCoreTask,   /* Function to implement the task */

@@ -31,9 +31,9 @@ class PWDTimerMessage:
         self.state = int(fields[0])
         self.start_time = int(fields[1])
         self.curr_time = int(fields[2])
-        self.racedata.num_lanes = int(fields[3])
+        self.num_lanes = int(fields[3])
         self.end_times = []
-        for I in range(self.racedata.num_lanes):
+        for I in range(self.num_lanes):
             self.end_times.append(int(fields[4+I]))
         
     def get_state(self):
@@ -41,7 +41,7 @@ class PWDTimerMessage:
 
     def get_lane_times(self):
         end_times_seconds = []
-        for I in range(self.racedata.num_lanes):
+        for I in range(self.num_lanes):
             etsec = 0
             if self.end_times[I] == 0:
                 etsec = (self.curr_time - self.start_time)/1E6    
@@ -71,14 +71,24 @@ class PWDTimerClient:
     DEFAULT_TCP_PORT = 8080
     DEFAULT_SERIAL_PORT = 'COM1'
 
+    ser_port = DEFAULT_SERIAL_PORT
+
     comm_mode = PWDTimerCommMode.UNDEFINED
 
-    def __init__(self, sock=None):
-        if sock is None:
-            self.sock = socket.socket(
-                            socket.AF_INET, socket.SOCK_STREAM)
-        else:
-            self.sock = sock
+    def __init__(self):
+        self.sock = None
+        self.ser = None
+        
+    def is_connected(self):
+        return self.ser is not None  or self.sock is not None 
+
+    def comm_mode_str(self):
+        if self.comm_mode == PWDTimerCommMode.UNDEFINED:
+            return "No comm mode selected"
+        elif self.comm_mode == PWDTimerCommMode.SERIAL:
+            return "Serial"
+        elif self.comm_mode == PWDTimerCommMode.NETWORK:
+            return "Network"
 
     def connect_serial(self, ser_port=None):
         if self.comm_mode != PWDTimerCommMode.UNDEFINED:
@@ -87,14 +97,20 @@ class PWDTimerClient:
         if ser_port == None:
             ser_port = self.DEFAULT_SERIAL_PORT
 
-        self.ser = serial.Serial(ser_port, 115200)
-        if not self.ser.isOpen():
-            print("ERROR OPENING SERIAL PORT")
-            return
-        self.comm_mode = PWDTimerCommMode.SERIAL
+        try:
+            self.ser_port = ser_port
+            self.ser = serial.Serial(ser_port, 115200)
+            if not self.ser.isOpen():
+                print("ERROR OPENING SERIAL PORT")
+                return
+            self.comm_mode = PWDTimerCommMode.SERIAL
+        except:
+            print("Error opening serial port")
 
     def disconnect_serial(self):
-        self.ser.close()        
+        self.ser.close()     
+        self.ser = None
+        self.comm_mode = PWDTimerCommMode.UNDEFINED   
 
     def connect_wifi(self, host=None, tcp_port=None):
         if self.comm_mode != PWDTimerCommMode.UNDEFINED:
@@ -112,6 +128,8 @@ class PWDTimerClient:
         
     def disconnect_wifi(self):
         self.sock.close()
+        self.sock = None
+        self.comm_mode = PWDTimerCommMode.UNDEFINED
 
     def send_message(self, msg):
         msg_bytes = bytes(msg+'\r\n','utf-8')

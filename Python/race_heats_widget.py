@@ -15,6 +15,8 @@ from racefiles import *
 class RaceHeatsWidget(QWidget):
     num_lanes = 0
     racedata = None
+    
+    heatSelectionCallback = None
 
     def __init__(self,parent=None):
         QWidget.__init__(self,parent)
@@ -38,6 +40,9 @@ class RaceHeatsWidget(QWidget):
         self.heatsTableView.setModel(model)
 
         self.update_groups_and_heats()
+
+    def set_heat_selection_callback(self, callback):
+        self.heatSelectionCallback = callback
 
     def update_groups_and_heats(self):
         groupsModel = self.groupsTreeView.model()
@@ -128,6 +133,7 @@ class RaceHeatsWidget(QWidget):
                     row, col = self.participantLaneToRowCol(I, J)
                     # model.setData(model.index(row,col), QVariant(QColor(Qt.red)), Qt.DecorationRole)
                     newModel.setData(newModel.index(row,col), QVariant(self.style().standardIcon(QStyle.SP_DialogApplyButton)), Qt.DecorationRole)
+        
                     
         self.heatsTableView.setModel(newModel)
 
@@ -136,13 +142,17 @@ class RaceHeatsWidget(QWidget):
             heatsModel = self.heatsTableView.model()
             heatsModel.removeRows(0, heatsModel.rowCount())
 
-            row = selected.indexes()[ 0 ].row()
-            self.populate_heats(row)
+            #row = selected.indexes()[ 0 ].row()
+            #self.populate_heats(row)
+            self.create_heats_table()
 
     def on_column_changed(self, index):
+        heatNum = index.column()
+
+        index = self.groupsTreeView.currentIndex()
+        groupNum = index.row()
+
+        if self.heatSelectionCallback is not None:
+            self.heatSelectionCallback(groupNum,heatNum)
 
         pass
-
-    
-
-        # self.update_groups_and_heats()
